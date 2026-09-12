@@ -1,123 +1,23 @@
-const state={instrument:null,evidence:[]};
-const $=s=>document.querySelector(s);
-const icon={Dokumen:"📄",Gambar:"🖼️",Video:"🎬",Data:"📊","Lain-lain":"📎"};
-
-async function init(){
-  state.instrument=await fetch("data/instrument.json").then(r=>r.json());
-  state.evidence=JSON.parse(localStorage.getItem("skasEvidenceV1")||"[]");
-  $("#schoolName").textContent=state.instrument.app.school;
-  buildNav(); render();
-}
-function save(){localStorage.setItem("skasEvidenceV1",JSON.stringify(state.evidence));}
-function buildNav(){
-  const nav=$("#nav");
-  nav.innerHTML="";
-  const groups=[
-    ["DASHBOARD",[{id:"dashboard",label:"📊 Dashboard"}]],
-    ["INSTRUMEN",state.instrument.sections.map(s=>({id:s.id,label:(s.code==="K"?"🟡 ":s.code==="P"?"🟣 ":"🟢 ")+s.name}))],
-  ];
-  groups.forEach(([title,items])=>{
-    const g=document.createElement("div");g.className="nav-group";
-    g.innerHTML=`<div class="nav-label">${title}</div>`;
-    items.forEach(it=>{
-      const b=document.createElement("button");b.className="nav-btn";b.dataset.id=it.id;b.innerHTML=`<span>${it.label}</span><b>›</b>`;
-      b.onclick=()=>{ if(it.id==="dashboard") $("#dashboard").classList.remove("hidden"); window.scrollTo({top:0,behavior:"smooth"}); filterSection(it.id); };
-      g.appendChild(b);
-    }); nav.appendChild(g);
-  });
-}
-function allAspects(){
-  const out=[];
-  for(const sec of state.instrument.sections){
-    if(sec.aspects) sec.aspects.forEach(a=>out.push({...a,section:sec.name}));
-    (sec.standards||[]).forEach(st=>(st.aspects||[]).forEach(a=>out.push({...a,section:sec.name,standard:st.code,standardName:st.name,track:st.track})));
-  }
-  return out;
-}
-function render(){
-  const e=state.evidence;
-  const totalAspects=allAspects().length;
-  const covered=new Set(e.map(x=>x.aspect).filter(Boolean)).size;
-  const readiness=totalAspects?Math.round(covered/totalAspects*100):0;
-  $("#readiness").textContent=readiness+"%";
-  $("#totalEvidence").textContent=e.length+" eviden";
-  $("#summaryCards").innerHTML=[
-    ["Eviden direkodkan",e.length,"Jumlah"],
-    ["Aspek mempunyai eviden",covered,`daripada ${totalAspects}`],
-    ["Belum ada eviden",Math.max(0,totalAspects-covered),"Perlu tindakan"]
-  ].map(x=>`<div class="card"><div class="card-top"><span>${x[2]}</span><span>2026</span></div><strong>${x[1]}</strong></div>`).join("");
-  renderProgress();
-  renderRecent();
-  renderStructure();
-}
-function renderProgress(){
-  const target=$("#sectionProgress");target.innerHTML="";
-  state.instrument.sections.forEach(sec=>{
-    const aspects=allAspects().filter(a=>a.section===sec.name);
-    const have=new Set(state.evidence.filter(e=>e.section===sec.name||aspects.some(a=>a.code===e.aspect)).map(e=>e.aspect)).size;
-    const pct=aspects.length?Math.round(have/aspects.length*100):0;
-    target.innerHTML+=`<div class="progress-row"><div class="label"><span>${sec.name}</span><b>${pct}%</b></div><div class="bar"><div class="fill" style="width:${pct}%"></div></div></div>`;
-  });
-}
-function renderRecent(){
-  const el=$("#recentEvidence"),e=[...state.evidence].sort((a,b)=>(b.date||"").localeCompare(a.date||"")).slice(0,6);
-  if(!e.length){el.innerHTML=`<div class="muted">Belum ada eviden. Klik <b>+ Tambah</b> untuk mula.</div>`;return}
-  el.innerHTML=e.map(x=>`<div class="evidence-item"><div class="e-icon">${icon[x.category]||"📎"}</div><div><strong>${esc(x.title)}</strong><small>${esc(x.aspect)} ${x.date?"• "+x.date:""}</small></div></div>`).join("");
-}
-function renderStructure(){
-  const el=$("#structure");el.innerHTML="";
-  state.instrument.sections.forEach(sec=>{
-    const wrap=document.createElement("div");wrap.className="structure-section";
-    let body="";
-    if(sec.aspects) body=sec.aspects.map(a=>aspectBtn(a,sec.name)).join("");
-    (sec.standards||[]).forEach(st=>{
-      body+=`<div style="padding:10px 14px 2px;font-size:11px;color:#65778d;font-weight:800">STANDARD ${st.code}${st.track?" — "+st.track:""}: ${st.name}</div>`;
-      body+=(st.aspects||[]).map(a=>aspectBtn(a,sec.name,st)).join("");
-    });
-    wrap.innerHTML=`<div class="structure-head"><strong>${sec.name}</strong><span>${sec.code}</span></div><div class="aspect-list">${body}</div>`;
-    el.appendChild(wrap);
-  });
-}
-function aspectBtn(a,section,st){return `<button class="aspect" onclick="showAspect('${escAttr(a.code)}','${escAttr(a.name)}','${escAttr(section)}','${escAttr(st?.code||"")}')">${a.code} · ${a.name}</button>`}
-function showAspect(code,name,section,std){
-  $("#evidenceModal").classList.remove("hidden");
-  $("#modalTitle").textContent=`Eviden — ${code}`;
-  const f=$("#evidenceForm");f.reset();f.aspect.value=`${code} – ${name}`;f.owner.value="";
-  $("#evidenceModal").dataset.section=section;$("#evidenceModal").dataset.aspect=code;
-}
-function openAdd(){ $("#evidenceModal").classList.remove("hidden");$("#modalTitle").textContent="Tambah Eviden";$("#evidenceForm").reset(); }
-function close(){ $("#evidenceModal").classList.add("hidden"); }
-$("#addTop").onclick=openAdd;
-$("#assessmentBtn").onclick=()=>alert("Mode Penilaian akan menjadi modul V2: paparan instrumen, skor kendiri, skor penilai dan log penilaian.");
-$("#closeModal").onclick=close;$("#cancelModal").onclick=close;
-$("#evidenceForm").onsubmit=e=>{
-  e.preventDefault();const f=e.target;
-  const aspect=f.aspect.value.trim();
-  const code=(aspect.match(/^([A-Z]?\d+(?:\.\d+)+|A\d+)/)||[])[1]||aspect;
-  const section=state.instrument.sections.find(s=>allAspects().find(a=>a.code===code&&a.section===s.name))?.name||"Pengurusan Kami";
-  state.evidence.push({id:Date.now().toString(),title:f.title.value.trim(),category:f.category.value,aspect,owner:f.owner.value.trim(),date:f.date.value,url:f.url.value.trim(),note:f.note.value.trim(),section});
-  save();close();render();alert("Eviden berjaya disimpan.");
-};
-$("#search").oninput=e=>doSearch(e.target.value);
-$("#clearSearch").onclick=()=>{$("#search").value="";doSearch("")};
-document.addEventListener("keydown",e=>{if(e.key==="Escape"){close();$("#search").focus()}});
-$("#resetBtn").onclick=()=>{if(confirm("Padam semua data eviden demo?")){state.evidence=[];save();render();}};
-function doSearch(q){
-  q=q.trim().toLowerCase();
-  if(!q){$("#results").classList.add("hidden");$("#dashboard").classList.remove("hidden");return}
-  $("#dashboard").classList.add("hidden");$("#results").classList.remove("hidden");
-  const aspects=allAspects().filter(a=>`${a.code} ${a.name} ${a.section} ${a.standardName||""}`.toLowerCase().includes(q));
-  const ev=state.evidence.filter(x=>`${x.title} ${x.aspect} ${x.owner} ${x.note}`.toLowerCase().includes(q));
-  let html="";
-  aspects.slice(0,30).forEach(a=>html+=`<div class="result-card"><span class="badge">${a.code}</span><h3>${esc(a.name)}</h3><p>${esc(a.section)}${a.standardName?" • Standard "+esc(a.standard):""}</p><button class="link" onclick="showAspect('${escAttr(a.code)}','${escAttr(a.name)}','${escAttr(a.section)}','${escAttr(a.standard||"")}')">+ Tambah eviden</button></div>`);
-  ev.forEach(x=>html+=`<div class="result-card"><span class="badge">${esc(x.category)}</span><h3>${esc(x.title)}</h3><p>${esc(x.aspect)}${x.owner?" • "+esc(x.owner):""}</p>${x.url?`<a class="link" href="${escAttr(x.url)}" target="_blank" rel="noopener">Buka dokumen ↗</a>`:""}</div>`);
-  $("#searchResults").innerHTML=html||`<div class="panel"><div class="muted">Tiada hasil untuk “${esc(q)}”.</div></div>`;
-}
-function filterSection(id){
-  if(id==="dashboard"){render();return}
-  const sec=state.instrument.sections.find(s=>s.id===id);if(!sec)return;
-  $("#search").value=sec.name;doSearch(sec.name);
-}
-function esc(s=""){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
-function escAttr(s=""){return esc(s).replace(/`/g,"&#096;")}
-init();
+const S={data:null,evidence:[],view:'dashboard',filter:'',selected:null};
+const $=s=>document.querySelector(s); const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+async function init(){S.data=await fetch('data/instrument_v2.json').then(r=>r.json());S.evidence=JSON.parse(localStorage.getItem('skasEvidenceV2')||'[]');document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>{document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));b.classList.add('active');S.view=b.dataset.view;render()});render()}
+function save(){localStorage.setItem('skasEvidenceV2',JSON.stringify(S.evidence))}
+function pct(){const total=S.data.aspects.length;const covered=new Set(S.evidence.map(x=>x.aspectCode)).size;return total?Math.round(covered/total*100):0}
+function render(){const app=$('#app'); if(S.view==='dashboard') app.innerHTML=dashboard(); else if(S.view==='instrument') app.innerHTML=instrument(); else if(S.view==='evidence') app.innerHTML=evidenceView(); else if(S.view==='assessment') app.innerHTML=assessment(); else app.innerHTML=report(); wire()}
+function dashboard(){const p=pct();return `<div class="hero"><div><span class="badge">EDISI 2026</span><h2>Satu Sistem. Satu Eviden. Sedia Dinilai.</h2><p>Urus eviden mengikut Standard, Aspek dan Tindakan Instrumen K@S.</p></div><div class="hero-score"><span>Kesiapsiagaan Aspek</span><strong>${p}%</strong></div></div><div class="cards"><div class="card"><small>Jumlah Aspek</small><strong>${S.data.aspects.length}</strong></div><div class="card"><small>Eviden direkodkan</small><strong>${S.evidence.length}</strong></div><div class="card"><small>Aspek ada eviden</small><strong>${new Set(S.evidence.map(x=>x.aspectCode)).size}</strong></div><div class="card"><small>Aspek belum ada eviden</small><strong>${Math.max(0,S.data.aspects.length-new Set(S.evidence.map(x=>x.aspectCode)).size)}</strong></div></div><div class="grid"><div class="panel"><div class="panel-head"><h3>Kesiapsiagaan mengikut kelompok</h3></div>${['1','2','3.1','3.2','3.3','4'].map(k=>progressGroup(k)).join('')}</div><div class="panel"><div class="panel-head"><h3>Eviden Terbaru</h3><button class="primary" onclick="openAdd()">+ Tambah</button></div>${recent(6)}</div></div><div class="panel" style="margin-top:13px"><div class="panel-head"><h3>Instrumen</h3><button class="link" onclick="S.view='instrument';render()">Lihat semua →</button></div><p class="muted">Standard 1 Kepemimpinan, Standard 2 Pengurusan Organisasi, Standard 3 Kurikulum/Kokurikulum/HEM dan Standard 4 PdPc. Standard 5 pencapaian akan menjadi modul indikator berasingan.</p></div>`}
+function progressGroup(k){let arr=S.data.aspects.filter(a=>k==='1'?a.code.startsWith('1.'):k==='2'?a.code.startsWith('2.'):k==='4'?a.code.startsWith('4.'):a.code.startsWith(k+'.'));if(k==='4')arr=arr.filter((a,i)=>i<6);const have=new Set(S.evidence.map(x=>x.aspectCode));const n=arr.filter(a=>have.has(a.code)).length;const p=arr.length?Math.round(n/arr.length*100):0;return `<div class="progress"><label><span>${k==='1'?'Standard 1':k==='2'?'Standard 2':k==='4'?'Standard 4':'Standard '+k}</span><b>${p}%</b></label><div class="bar"><div class="fill" style="width:${p}%"></div></div></div>`}
+function instrument(){const q=S.filter.toLowerCase();let arr=S.data.aspects.filter(a=>`${a.code} ${a.name} ${a.standardQuality}`.toLowerCase().includes(q));return `<div class="search"><input id="q" value="${esc(S.filter)}" placeholder="Cari kod aspek, nama aspek atau standard kualiti..."><button class="primary" onclick="S.filter=$('#q').value;render()">Cari</button><button class="outline" onclick="S.filter='';render()">Reset</button></div><div class="notice">Setiap Aspek memaparkan Standard Kualiti, Tindakan dan nombor halaman sumber. Klik Aspek untuk melihat tindakan serta skor kendiri/penilai.</div>${arr.map(aspectCard).join('')||'<div class="panel muted">Tiada hasil.</div>'}`}
+function aspectCard(a){const ev=S.evidence.filter(x=>x.aspectCode===a.code).length;return `<div class="aspect-card" onclick="openAspect('${a.code}')"><div class="aspect-top"><b>${esc(a.code)} · ${esc(a.name)}</b><span>${ev} eviden</span></div><p>${esc(a.standardQuality||'Standard Kualiti — semak pada halaman sumber')}</p><small class="muted">Halaman sumber: ${a.pages.join(', ')}</small></div>`}
+function openAspect(code){S.selected=S.data.aspects.find(a=>a.code===code);if(!S.selected)return;$('#modal').classList.remove('hidden');$('#modalBody').innerHTML=aspectModal(S.selected);}
+function aspectModal(a){return `<span class="badge">ASPEK ${esc(a.code)}</span><h2>${esc(a.name)}</h2><p class="muted"><b>Standard Kualiti:</b> ${esc(a.standardQuality||'—')}</p><p class="muted">Sumber instrumen: halaman ${a.pages.join(', ')}.</p><div class="tabs"><button class="tab active">Tindakan & Skor</button><button class="tab" onclick="openAdd('${a.code}')">+ Tambah Eviden</button></div>${a.actions.map((x,i)=>actionHtml(a,x,i)).join('')||'<div class="notice">Tiada tajuk tindakan berjaya dibaca pada halaman ini. Gunakan nombor halaman sumber untuk semakan manual.</div>'}`}
+function actionHtml(a,x,i){const ev=S.evidence.filter(e=>e.actionId===x.id||e.aspectCode===a.code&&e.linkedActionCodes?.includes(x.code));return `<div class="action"><div class="action-top"><div class="action-code">${esc(x.code)}</div><div class="action-title">${esc(x.title)} <span class="muted">(hlm. ${x.sourcePage})</span></div></div><div class="scores"><span class="muted">Kendiri:</span>${[0,1,2,3,4].map(n=>`<button class="score ${x.selfScore===n?'selected':''}" onclick="setScore('${x.id}','selfScore',${n})">${n}</button>`).join('')}<span class="muted" style="margin-left:8px">Penilai:</span>${[0,1,2,3,4].map(n=>`<button class="score ${x.assessorScore===n?'selected':''}" onclick="setScore('${x.id}','assessorScore',${n})">${n}</button>`).join('')}</div><div class="muted" style="margin-top:8px">${ev.length} eviden berkaitan</div></div>`}
+function setScore(id,key,n){const a=S.data.aspects.find(a=>a.actions.some(x=>x.id===id));if(!a)return;const x=a.actions.find(x=>x.id===id);x[key]=n; // store scoring separately so instrument JSON remains immutable
+let scores=JSON.parse(localStorage.getItem('skasScoresV2')||'{}');scores[id]=scores[id]||{};scores[id][key]=n;localStorage.setItem('skasScoresV2',JSON.stringify(scores));S.data.aspects.forEach(a=>a.actions.forEach(x=>{if(scores[x.id]){x.selfScore=scores[x.id].selfScore??null;x.assessorScore=scores[x.id].assessorScore??null}}));openAspect(a.code)}
+function evidenceView(){return `<div class="search"><input id="eq" value="${esc(S.filter)}" placeholder="Cari nama eviden, aspek, pemilik..." oninput="S.filter=this.value;render()"><button class="primary" onclick="openAdd()">+ Tambah Eviden</button></div>${recent(100)||'<div class="panel muted">Belum ada eviden.</div>'}`}
+function recent(n){let q=S.filter.toLowerCase();let arr=S.evidence.filter(x=>!q||`${x.title} ${x.aspectCode} ${x.owner} ${x.note}`.toLowerCase().includes(q)).slice(-n).reverse();if(!arr.length)return '<div class="muted">Belum ada eviden.</div>';return arr.map(x=>`<div class="evidence-row"><div class="e-icon">${x.category==='Gambar'?'🖼️':x.category==='Video'?'🎬':x.category==='Data'?'📊':'📄'}</div><div style="flex:1"><b>${esc(x.title)}</b><small>${esc(x.aspectCode)} • ${esc(x.owner||'Tiada pemilik')} ${x.date?'• '+esc(x.date):''}</small></div>${x.url?`<a class="link" href="${esc(x.url)}" target="_blank" rel="noopener">Buka ↗</a>`:''}</div>`).join('')}
+function assessment(){return `<div class="hero"><div><span class="badge">MODE PENILAIAN</span><h2>Ruang semakan penilaian</h2><p>Papar tindakan, eviden dan skor kendiri/penilai dalam satu tempat.</p></div><div class="hero-score"><span>Aspek diliputi</span><strong>${pct()}%</strong></div></div><div class="panel" style="margin-top:13px"><div class="search"><input id="aq" placeholder="Cari Aspek untuk semakan..."><button class="primary" onclick="S.filter=$('#aq').value;S.view='instrument';render()">Buka Instrumen</button></div><p class="muted">Cadangan aliran: Standard → Aspek → Tindakan → Eviden → Skor kendiri → Skor penilai → Catatan.</p></div>`}
+function report(){const scores=JSON.parse(localStorage.getItem('skasScoresV2')||'{}');let scored=0,total=0;S.data.aspects.forEach(a=>a.actions.forEach(x=>{total++;if(scores[x.id]?.selfScore!=null)scored++}));return `<div class="cards"><div class="card"><small>Jumlah tindakan direkod</small><strong>${total}</strong></div><div class="card"><small>Tindakan ada skor kendiri</small><strong>${scored}</strong></div><div class="card"><small>Eviden</small><strong>${S.evidence.length}</strong></div><div class="card"><small>Kesiapsiagaan aspek</small><strong>${pct()}%</strong></div></div><div class="panel" style="margin-top:13px"><h3>Ringkasan</h3><p class="muted">V2 menyediakan asas laporan. Modul eksport PDF/Excel dan perbandingan skor kendiri vs penilai akan ditambah selepas struktur eviden disahkan.</p></div>`}
+function openAdd(code=''){ $('#modal').classList.remove('hidden');$('#modalBody').innerHTML=`<span class="badge">EVIDEN</span><h2>Tambah Eviden</h2><form id="ef"><label>Nama eviden<input name="title" required placeholder="Contoh: Minit Mesyuarat Kurikulum Bil. 1/2026"></label><label>Aspek<select name="aspectCode" required><option value="">Pilih Aspek</option>${S.data.aspects.map(a=>`<option value="${a.code}" ${a.code===code?'selected':''}>${a.code} · ${esc(a.name)}</option>`).join('')}</select></label><label>Tindakan (pilihan)<select name="actionId"><option value="">-- Tidak ditetapkan --</option>${S.data.aspects.flatMap(a=>a.actions.map(x=>`<option value="${x.id}">${a.code} · ${x.code} · ${esc(x.title)}</option>`)).join('')}</select></label><label>Kategori<select name="category"><option>Dokumen</option><option>Gambar</option><option>Video</option><option>Data</option><option>Lain-lain</option></select></label><label>Pemilik / Unit<input name="owner"></label><label>Tarikh<input type="date" name="date"></label><label>Pautan dokumen<input type="url" name="url" placeholder="Google Drive / OneDrive / URL"></label><label>Catatan<textarea name="note" rows="3"></textarea></label><div class="form-actions"><button type="button" class="outline" onclick="closeModal()">Batal</button><button class="primary">Simpan</button></div></form>`;$('#ef').onsubmit=e=>{e.preventDefault();const f=e.target;S.evidence.push({id:Date.now().toString(),title:f.title.value.trim(),aspectCode:f.aspectCode.value,actionId:f.actionId.value,category:f.category.value,owner:f.owner.value.trim(),date:f.date.value,url:f.url.value.trim(),note:f.note.value.trim()});save();closeModal();render()}}
+function closeModal(){$('#modal').classList.add('hidden')}
+function wire(){if(S.view==='instrument')$('#q')?.addEventListener('keydown',e=>{if(e.key==='Enter'){S.filter=e.target.value;render()}});if(S.view==='evidence')$('#eq')?.focus()}
+window.openAspect=openAspect;window.openAdd=openAdd;window.closeModal=closeModal;window.setScore=setScore;init();
