@@ -17,3 +17,6 @@ Versi ini menggunakan Google Drive sebagai storan fail eviden. Supabase hanya me
 - Admin boleh melihat pengguna dan mengubah nama/role.
 - Akaun Auth baharu mesti dicipta melalui Supabase Authentication; V7.9 tidak menyimpan Secret/Service Role Key dalam frontend.
 - Jalankan `schema-users.sql` SEKALI di Supabase SQL Editor untuk menambah email pada profiles dan polisi update Admin.
+
+
+V7.10 menambah Paparan Nazir read-only untuk semakan eviden dan kemajuan mengikut Standard. Baseline V7.6 kekal dikekalkan.
