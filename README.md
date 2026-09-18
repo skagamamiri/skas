@@ -1,6 +1,6 @@
 # SK@S DIGITAL V4 — EVIDEN SAHAJA
 
-Versi ini menggunakan struktur yang dibekalkan untuk Sistem Evidens Digital SK@S.
+Versi ini menggunakan struktur yang dibekalkan untuk Sistem Evidens Digital SK@S, dengan **Kekuatan Kami (A1–A9)** diletakkan paling awal sebelum Standard 1.0.
 
 ## Prinsip V4
 **Standard → Aspek → Pecahan → Eviden**
@@ -34,3 +34,12 @@ Settings → Pages → Deploy from branch → `main` → `/ (root)`.
 - Satu eviden boleh dikaitkan kepada beberapa pecahan
 - Preview PDF/gambar
 - Backup/export data
+
+
+## Susunan utama
+1. Kekuatan Kami (A1–A9)
+2. 1.0 Kepemimpinan
+3. 2.0 Pengurusan Organisasi
+4. 3.0 Pengurusan Kurikulum, Kokurikulum dan HEM
+5. 4.0 Pembelajaran dan Pemudahcaraan (PdPc)
+6. 5.0 Pencapaian Kami
