@@ -1,7 +1,5 @@
-# SK@S Digital V7.2
+# SK@S Digital V7.3
 
-Versi Supabase dengan paparan login yang selamat jika JavaScript/CDN gagal dimuat. Semua fail berada di folder utama.
+Versi pembaikan Supabase. Memperbetulkan konflik nama `supabase` antara CDN Supabase dan pembolehubah client aplikasi yang menyebabkan `Identifier 'supabase' has already been declared`.
 
-Supabase URL: https://qscjehhzzigerffauxma.supabase.co
-
-Jangan masukkan Secret/Service Role key ke frontend. Gunakan Publishable Key sahaja.
+Semua fail berada dalam satu folder utama untuk GitHub Pages.
