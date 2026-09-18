@@ -2,5 +2,6 @@
 window.SKAS_CONFIG = {
   SUPABASE_URL: "https://qscjehhzzigerffaumxa.supabase.co",
   SUPABASE_KEY: "sb_publishable_eUBRXK5PH4RkL4NlX_7a3g_3Gf8YMQY",
-  SCHOOL_NAME: "SK@S DIGITAL"
+  SCHOOL_NAME: "SK@S DIGITAL",
+  GOOGLE_DRIVE_WEBAPP_URL: "https://script.google.com/macros/s/AKfycbxPmWmemGCM-L99EfIGO89VFJjLcBmfMgZES3ByAUBRBEue4Yqft8epMejbD0SCOKdj7Q/exec"
 };

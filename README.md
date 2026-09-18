@@ -1,27 +1,20 @@
-SK@S Digital V7.6
+SK@S Digital V7.12
 
-Versi Supabase dengan diagnostik sambungan. Jika login memaparkan Failed to fetch, klik Uji sambungan untuk melihat status HTTP Supabase.
+Fungsi baharu: upload fail terus dari web ke Google Drive melalui Google Apps Script Web App. Folder akan dicipta automatik mengikut Standard > Aspek > Pecahan instrumen. Jika satu eviden dikaitkan dengan beberapa pecahan, fail asal disimpan sekali dan shortcut diletakkan pada folder pecahan lain. Supabase hanya menyimpan metadata dan URL Drive.
 
+SETUP GOOGLE DRIVE
+1. Buka https://script.google.com/create menggunakan akaun Google sekolah yang akan menjadi pemilik storan.
+2. Cipta project baharu.
+3. Masukkan kandungan google-drive-apps-script.gs sebagai Code.gs.
+4. Tambah HTML file bernama DriveUpload dan masukkan kandungan DriveUpload.html.
+5. Simpan dan jalankan fungsi setupSKASDrive sekali untuk memberi kebenaran Google Drive.
+6. Deploy > New deployment > Web app. Execute as: Me. Who has access: pilih akses yang sesuai dengan akaun sekolah (untuk ujian boleh guna Anyone, tetapi untuk penggunaan sekolah sebaiknya gunakan pilihan domain/akaun yang sesuai).
+7. Salin URL /exec deployment.
+8. Masukkan URL itu ke config.js pada GOOGLE_DRIVE_WEBAPP_URL.
+9. Deploy semula GitHub Pages.
 
-## V7.7 — Polisi storan
-Versi ini menggunakan Google Drive sebagai storan fail eviden. Supabase hanya menyimpan metadata eviden dan URL Google Drive. Medan upload fail Supabase Storage tidak digunakan.
-
-
-## V7.8
-- Edit dan padam eviden mengikut role/RLS.
-- Carian eviden diperkemas.
-- Google Drive kekal sebagai storan fail; Supabase menyimpan metadata dan pautan.
-- V7.6 kekal baseline terkunci; V7.8 ialah pembangunan lanjutan.
-
-## V7.9 Pengurusan Pengguna
-- Admin boleh melihat pengguna dan mengubah nama/role.
-- Akaun Auth baharu mesti dicipta melalui Supabase Authentication; V7.9 tidak menyimpan Secret/Service Role Key dalam frontend.
-- Jalankan `schema-users.sql` SEKALI di Supabase SQL Editor untuk menambah email pada profiles dan polisi update Admin.
-
-
-V7.10 menambah Paparan Nazir read-only untuk semakan eviden dan kemajuan mengikut Standard. Baseline V7.6 kekal dikekalkan.
-
-## V7.11 UI
-- Added official school logo to sidebar/login/hero.
-- Added PNG favicon and Apple touch icon.
-- Refreshed visual interface only; Supabase/auth/evidence logic remains based on V7.10 baseline.
+NOTA KESELAMATAN
+- Web app ini berjalan sebagai pemilik/deployer jika memilih Execute as Me, jadi fail guru disimpan ke Drive akaun tersebut. Google mendokumentasikan bahawa web app yang execute as owner berjalan di bawah identiti pemilik.
+- Jangan letakkan Secret/Service Role Key Supabase dalam frontend.
+- Untuk akses fail oleh Nazir/guru lain, kongsi folder root SK@S DIGITAL kepada akaun/kumpulan sekolah. Kod backend tidak menjadikan fail awam secara automatik.
+- Apps Script menggunakan DriveApp dan memerlukan kebenaran Drive.
