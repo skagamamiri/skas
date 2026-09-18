@@ -39,11 +39,11 @@
 <section id="detailView" class="hidden"><button class="back" id="back">← Dashboard</button><div id="detail"></div></section>
 <section id="resultsView" class="hidden"><div class="title"><div><span>CARIAN</span><h2>Hasil Carian</h2></div></div><div id="results"></div></section>
 </main></div>
-<div class="modal hidden" id="modal"><div class="modal-card"><button class="x" id="close">×</button><span class="tag">EVIDEN</span><h2>Tambah Eviden</h2><p class="muted">Satu eviden boleh dikaitkan dengan beberapa pecahan instrumen. Fail sebenar disimpan di Google Drive; Supabase menyimpan rekod dan pautannya.</p>
+<div class="modal hidden" id="modal"><div class="modal-card"><button class="x" id="close">×</button><span class="tag" id="modalTag">EVIDEN</span><h2 id="modalTitle">Tambah Eviden</h2><p class="muted">Satu eviden boleh dikaitkan dengan beberapa pecahan instrumen. Fail sebenar disimpan di Google Drive; Supabase menyimpan rekod dan pautannya.</p>
 <form id="form"><label>Pecahan instrumen <span class="hint">(boleh pilih lebih daripada satu)</span><div id="targets" class="target-list"></div></label>
 <label>Nama eviden<input name="title" required placeholder="Contoh: Minit Mesyuarat Bil. 1/2026"></label><label>Kategori<select name="category"><option>Dokumen</option><option>Gambar</option><option>Video</option><option>Data</option><option>Lain-lain</option></select></label>
 <label>Pemilik / Unit<input name="owner" placeholder="Contoh: Unit Kurikulum"></label><label>Tarikh<input name="date" type="date"></label><label>Pautan Google Drive <span class="hint">(wajib)</span><input name="url" type="url" required placeholder="https://drive.google.com/..."></label><label>Catatan<textarea name="note" rows="3" placeholder="Catatan ringkas"></textarea></label>
-<div class="actions"><button type="button" class="secondary" id="cancel">Batal</button><button class="primary">Simpan Eviden</button></div></form></div></div>
+<div class="actions"><button type="button" class="secondary" id="cancel">Batal</button><button class="primary" id="saveBtn">Simpan Eviden</button></div></form></div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 <script>window.addEventListener("error",function(e){var m=document.getElementById("loginMsg");if(m)m.textContent="Ralat aplikasi: "+(e.message||"Fail JavaScript tidak dapat dimuat.");});</script>
