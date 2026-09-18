@@ -2,12 +2,12 @@
 <html lang="ms">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SK@S DIGITAL</title><link rel="stylesheet" href="style.css">
+<title>SK@S DIGITAL | Sistem Evidens Sekolah</title><meta name="theme-color" content="#0b3b72"><meta name="description" content="Sistem Evidens Digital SK Agama (MIS) Miri"><link rel="icon" type="image/png" href="logo-sekolah.png"><link rel="apple-touch-icon" href="logo-sekolah.png"><link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div id="loginView" class="login-wrap">
   <div class="login-card">
-    <div class="brand"><div class="logo">K@S</div><div><b>SK@S DIGITAL</b><small>Sistem Evidens Digital</small></div></div>
+    <div class="brand"><img class="school-logo" src="logo-sekolah.png" alt="Logo SK Agama (MIS) Miri"><div><b>SK@S DIGITAL</b><small>Sistem Evidens Sekolah</small></div></div>
     <h1>Log masuk</h1><p class="muted">Akses pusat eviden sekolah.</p>
     <form id="loginForm">
       <label>Email<input id="loginEmail" type="email" required placeholder="nama@sekolah.edu.my"></label>
@@ -22,7 +22,7 @@
 <div id="localNotice" class="local-notice hidden">Mod tempatan: Supabase belum dikonfigurasi. Data hanya disimpan pada pelayar ini.</div>
 <div id="appView" class="app hidden">
 <aside class="sidebar">
-  <div class="brand"><div class="logo">K@S</div><div><b>SK@S DIGITAL</b><small>Sistem Evidens Digital</small></div></div>
+  <div class="brand"><img class="school-logo" src="logo-sekolah.png" alt="Logo SK Agama (MIS) Miri"><div><b>SK@S DIGITAL</b><small>Sistem Evidens Sekolah</small></div></div>
   <button class="home active" data-view="home">⌂ Dashboard</button>
   <button class="home hidden" id="usersNav">👥 Pengguna</button>
   <button class="home hidden" id="nazirNav">👀 Paparan Nazir</button>
@@ -30,12 +30,12 @@
   <div class="side-foot"><span id="modeText">Instrumen K@S 2026</span><button id="logoutBtn" class="logout">Log keluar</button></div>
 </aside>
 <main>
-<header class="top"><div><span>SEKOLAH</span><h1 id="school"></h1></div><div class="pill" id="userPill">👤</div></header>
-<section class="hero"><div class="hero-copy"><em>SK@S DIGITAL</em><h2>Pusat Eviden Sekolah</h2><p>Susun dan capai eviden dengan cepat mengikut Standard, Aspek dan pecahan instrumen.</p></div><div class="hero-num"><small>Eviden direkodkan</small><strong id="count">0</strong></div></section>
+<header class="top"><div class="school-heading"><span>SK AGAMA (MIS) MIRI</span><h1 id="school"></h1><small>BERILMU • BERAMAL • BERAKHLAK MULIA</small></div><div class="top-right"><div class="status-dot"><i></i> Sistem Online</div><div class="pill" id="userPill">👤</div></div></header>
+<section class="hero"><div class="hero-glow"></div><div class="hero-copy"><div class="hero-brand"><img src="logo-sekolah.png" alt="Logo sekolah"><div><em>SK@S DIGITAL</em><h2>Pusat Eviden Sekolah</h2></div></div><p>Susun, cari dan capai eviden dengan cepat mengikut Standard, Aspek dan pecahan instrumen.</p><div class="hero-chips"><span>☁️ Supabase</span><span>🔗 Google Drive</span><span>🔐 Akses terkawal</span></div></div><div class="hero-num"><small>Eviden direkodkan</small><strong id="count">0</strong><span>rekod dalam sistem</span></div></section>
 <div class="search"><span>⌕</span><input id="search" placeholder="Cari kod, aspek, pecahan atau nama eviden..."><button id="clear">ESC</button></div>
 <section id="homeView">
   <div class="title"><div><span>RINGKASAN</span><h2>Dashboard Eviden</h2></div><div class="title-actions"><button class="secondary" onclick="openImport()">↥ Import Backup</button><button class="secondary" onclick="exportEvidence()">↧ Export Backup</button><button class="primary" id="addBtn">＋ Tambah Eviden</button></div></div>
-  <div class="stats" id="stats"></div><div class="panel"><div class="panel-head"><h3>Kesediaan Eviden Mengikut Standard</h3></div><div id="progress"></div></div>
+  <div class="stats stats-dashboard" id="stats"></div><div class="panel"><div class="panel-head"><h3>Kesediaan Eviden Mengikut Standard</h3></div><div id="progress"></div></div>
   <div class="panel"><div class="panel-head"><h3>Eviden Terbaru</h3></div><div id="recent"></div></div>
 </section>
 <section id="detailView" class="hidden"><button class="back" id="back">← Dashboard</button><div id="detail"></div></section>

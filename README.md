@@ -20,3 +20,8 @@ Versi ini menggunakan Google Drive sebagai storan fail eviden. Supabase hanya me
 
 
 V7.10 menambah Paparan Nazir read-only untuk semakan eviden dan kemajuan mengikut Standard. Baseline V7.6 kekal dikekalkan.
+
+## V7.11 UI
+- Added official school logo to sidebar/login/hero.
+- Added PNG favicon and Apple touch icon.
+- Refreshed visual interface only; Supabase/auth/evidence logic remains based on V7.10 baseline.
