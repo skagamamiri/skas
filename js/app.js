@@ -1,23 +1,114 @@
-const S={data:null,evidence:[],view:'dashboard',filter:'',selected:null};
-const $=s=>document.querySelector(s); const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
-async function init(){S.data=await fetch('data/instrument_v2.json').then(r=>r.json());S.evidence=JSON.parse(localStorage.getItem('skasEvidenceV2')||'[]');document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>{document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));b.classList.add('active');S.view=b.dataset.view;render()});render()}
-function save(){localStorage.setItem('skasEvidenceV2',JSON.stringify(S.evidence))}
-function pct(){const total=S.data.aspects.length;const covered=new Set(S.evidence.map(x=>x.aspectCode)).size;return total?Math.round(covered/total*100):0}
-function render(){const app=$('#app'); if(S.view==='dashboard') app.innerHTML=dashboard(); else if(S.view==='instrument') app.innerHTML=instrument(); else if(S.view==='evidence') app.innerHTML=evidenceView(); else if(S.view==='assessment') app.innerHTML=assessment(); else app.innerHTML=report(); wire()}
-function dashboard(){const p=pct();return `<div class="hero"><div><span class="badge">EDISI 2026</span><h2>Satu Sistem. Satu Eviden. Sedia Dinilai.</h2><p>Urus eviden mengikut Standard, Aspek dan Tindakan Instrumen K@S.</p></div><div class="hero-score"><span>Kesiapsiagaan Aspek</span><strong>${p}%</strong></div></div><div class="cards"><div class="card"><small>Jumlah Aspek</small><strong>${S.data.aspects.length}</strong></div><div class="card"><small>Eviden direkodkan</small><strong>${S.evidence.length}</strong></div><div class="card"><small>Aspek ada eviden</small><strong>${new Set(S.evidence.map(x=>x.aspectCode)).size}</strong></div><div class="card"><small>Aspek belum ada eviden</small><strong>${Math.max(0,S.data.aspects.length-new Set(S.evidence.map(x=>x.aspectCode)).size)}</strong></div></div><div class="grid"><div class="panel"><div class="panel-head"><h3>Kesiapsiagaan mengikut kelompok</h3></div>${['1','2','3.1','3.2','3.3','4'].map(k=>progressGroup(k)).join('')}</div><div class="panel"><div class="panel-head"><h3>Eviden Terbaru</h3><button class="primary" onclick="openAdd()">+ Tambah</button></div>${recent(6)}</div></div><div class="panel" style="margin-top:13px"><div class="panel-head"><h3>Instrumen</h3><button class="link" onclick="S.view='instrument';render()">Lihat semua →</button></div><p class="muted">Standard 1 Kepemimpinan, Standard 2 Pengurusan Organisasi, Standard 3 Kurikulum/Kokurikulum/HEM dan Standard 4 PdPc. Standard 5 pencapaian akan menjadi modul indikator berasingan.</p></div>`}
-function progressGroup(k){let arr=S.data.aspects.filter(a=>k==='1'?a.code.startsWith('1.'):k==='2'?a.code.startsWith('2.'):k==='4'?a.code.startsWith('4.'):a.code.startsWith(k+'.'));if(k==='4')arr=arr.filter((a,i)=>i<6);const have=new Set(S.evidence.map(x=>x.aspectCode));const n=arr.filter(a=>have.has(a.code)).length;const p=arr.length?Math.round(n/arr.length*100):0;return `<div class="progress"><label><span>${k==='1'?'Standard 1':k==='2'?'Standard 2':k==='4'?'Standard 4':'Standard '+k}</span><b>${p}%</b></label><div class="bar"><div class="fill" style="width:${p}%"></div></div></div>`}
-function instrument(){const q=S.filter.toLowerCase();let arr=S.data.aspects.filter(a=>`${a.code} ${a.name} ${a.standardQuality}`.toLowerCase().includes(q));return `<div class="search"><input id="q" value="${esc(S.filter)}" placeholder="Cari kod aspek, nama aspek atau standard kualiti..."><button class="primary" onclick="S.filter=$('#q').value;render()">Cari</button><button class="outline" onclick="S.filter='';render()">Reset</button></div><div class="notice">Setiap Aspek memaparkan Standard Kualiti, Tindakan dan nombor halaman sumber. Klik Aspek untuk melihat tindakan serta skor kendiri/penilai.</div>${arr.map(aspectCard).join('')||'<div class="panel muted">Tiada hasil.</div>'}`}
-function aspectCard(a){const ev=S.evidence.filter(x=>x.aspectCode===a.code).length;return `<div class="aspect-card" onclick="openAspect('${a.code}')"><div class="aspect-top"><b>${esc(a.code)} · ${esc(a.name)}</b><span>${ev} eviden</span></div><p>${esc(a.standardQuality||'Standard Kualiti — semak pada halaman sumber')}</p><small class="muted">Halaman sumber: ${a.pages.join(', ')}</small></div>`}
-function openAspect(code){S.selected=S.data.aspects.find(a=>a.code===code);if(!S.selected)return;$('#modal').classList.remove('hidden');$('#modalBody').innerHTML=aspectModal(S.selected);}
-function aspectModal(a){return `<span class="badge">ASPEK ${esc(a.code)}</span><h2>${esc(a.name)}</h2><p class="muted"><b>Standard Kualiti:</b> ${esc(a.standardQuality||'—')}</p><p class="muted">Sumber instrumen: halaman ${a.pages.join(', ')}.</p><div class="tabs"><button class="tab active">Tindakan & Skor</button><button class="tab" onclick="openAdd('${a.code}')">+ Tambah Eviden</button></div>${a.actions.map((x,i)=>actionHtml(a,x,i)).join('')||'<div class="notice">Tiada tajuk tindakan berjaya dibaca pada halaman ini. Gunakan nombor halaman sumber untuk semakan manual.</div>'}`}
-function actionHtml(a,x,i){const ev=S.evidence.filter(e=>e.actionId===x.id||e.aspectCode===a.code&&e.linkedActionCodes?.includes(x.code));return `<div class="action"><div class="action-top"><div class="action-code">${esc(x.code)}</div><div class="action-title">${esc(x.title)} <span class="muted">(hlm. ${x.sourcePage})</span></div></div><div class="scores"><span class="muted">Kendiri:</span>${[0,1,2,3,4].map(n=>`<button class="score ${x.selfScore===n?'selected':''}" onclick="setScore('${x.id}','selfScore',${n})">${n}</button>`).join('')}<span class="muted" style="margin-left:8px">Penilai:</span>${[0,1,2,3,4].map(n=>`<button class="score ${x.assessorScore===n?'selected':''}" onclick="setScore('${x.id}','assessorScore',${n})">${n}</button>`).join('')}</div><div class="muted" style="margin-top:8px">${ev.length} eviden berkaitan</div></div>`}
-function setScore(id,key,n){const a=S.data.aspects.find(a=>a.actions.some(x=>x.id===id));if(!a)return;const x=a.actions.find(x=>x.id===id);x[key]=n; // store scoring separately so instrument JSON remains immutable
-let scores=JSON.parse(localStorage.getItem('skasScoresV2')||'{}');scores[id]=scores[id]||{};scores[id][key]=n;localStorage.setItem('skasScoresV2',JSON.stringify(scores));S.data.aspects.forEach(a=>a.actions.forEach(x=>{if(scores[x.id]){x.selfScore=scores[x.id].selfScore??null;x.assessorScore=scores[x.id].assessorScore??null}}));openAspect(a.code)}
-function evidenceView(){return `<div class="search"><input id="eq" value="${esc(S.filter)}" placeholder="Cari nama eviden, aspek, pemilik..." oninput="S.filter=this.value;render()"><button class="primary" onclick="openAdd()">+ Tambah Eviden</button></div>${recent(100)||'<div class="panel muted">Belum ada eviden.</div>'}`}
-function recent(n){let q=S.filter.toLowerCase();let arr=S.evidence.filter(x=>!q||`${x.title} ${x.aspectCode} ${x.owner} ${x.note}`.toLowerCase().includes(q)).slice(-n).reverse();if(!arr.length)return '<div class="muted">Belum ada eviden.</div>';return arr.map(x=>`<div class="evidence-row"><div class="e-icon">${x.category==='Gambar'?'🖼️':x.category==='Video'?'🎬':x.category==='Data'?'📊':'📄'}</div><div style="flex:1"><b>${esc(x.title)}</b><small>${esc(x.aspectCode)} • ${esc(x.owner||'Tiada pemilik')} ${x.date?'• '+esc(x.date):''}</small></div>${x.url?`<a class="link" href="${esc(x.url)}" target="_blank" rel="noopener">Buka ↗</a>`:''}</div>`).join('')}
-function assessment(){return `<div class="hero"><div><span class="badge">MODE PENILAIAN</span><h2>Ruang semakan penilaian</h2><p>Papar tindakan, eviden dan skor kendiri/penilai dalam satu tempat.</p></div><div class="hero-score"><span>Aspek diliputi</span><strong>${pct()}%</strong></div></div><div class="panel" style="margin-top:13px"><div class="search"><input id="aq" placeholder="Cari Aspek untuk semakan..."><button class="primary" onclick="S.filter=$('#aq').value;S.view='instrument';render()">Buka Instrumen</button></div><p class="muted">Cadangan aliran: Standard → Aspek → Tindakan → Eviden → Skor kendiri → Skor penilai → Catatan.</p></div>`}
-function report(){const scores=JSON.parse(localStorage.getItem('skasScoresV2')||'{}');let scored=0,total=0;S.data.aspects.forEach(a=>a.actions.forEach(x=>{total++;if(scores[x.id]?.selfScore!=null)scored++}));return `<div class="cards"><div class="card"><small>Jumlah tindakan direkod</small><strong>${total}</strong></div><div class="card"><small>Tindakan ada skor kendiri</small><strong>${scored}</strong></div><div class="card"><small>Eviden</small><strong>${S.evidence.length}</strong></div><div class="card"><small>Kesiapsiagaan aspek</small><strong>${pct()}%</strong></div></div><div class="panel" style="margin-top:13px"><h3>Ringkasan</h3><p class="muted">V2 menyediakan asas laporan. Modul eksport PDF/Excel dan perbandingan skor kendiri vs penilai akan ditambah selepas struktur eviden disahkan.</p></div>`}
-function openAdd(code=''){ $('#modal').classList.remove('hidden');$('#modalBody').innerHTML=`<span class="badge">EVIDEN</span><h2>Tambah Eviden</h2><form id="ef"><label>Nama eviden<input name="title" required placeholder="Contoh: Minit Mesyuarat Kurikulum Bil. 1/2026"></label><label>Aspek<select name="aspectCode" required><option value="">Pilih Aspek</option>${S.data.aspects.map(a=>`<option value="${a.code}" ${a.code===code?'selected':''}>${a.code} · ${esc(a.name)}</option>`).join('')}</select></label><label>Tindakan (pilihan)<select name="actionId"><option value="">-- Tidak ditetapkan --</option>${S.data.aspects.flatMap(a=>a.actions.map(x=>`<option value="${x.id}">${a.code} · ${x.code} · ${esc(x.title)}</option>`)).join('')}</select></label><label>Kategori<select name="category"><option>Dokumen</option><option>Gambar</option><option>Video</option><option>Data</option><option>Lain-lain</option></select></label><label>Pemilik / Unit<input name="owner"></label><label>Tarikh<input type="date" name="date"></label><label>Pautan dokumen<input type="url" name="url" placeholder="Google Drive / OneDrive / URL"></label><label>Catatan<textarea name="note" rows="3"></textarea></label><div class="form-actions"><button type="button" class="outline" onclick="closeModal()">Batal</button><button class="primary">Simpan</button></div></form>`;$('#ef').onsubmit=e=>{e.preventDefault();const f=e.target;S.evidence.push({id:Date.now().toString(),title:f.title.value.trim(),aspectCode:f.aspectCode.value,actionId:f.actionId.value,category:f.category.value,owner:f.owner.value.trim(),date:f.date.value,url:f.url.value.trim(),note:f.note.value.trim()});save();closeModal();render()}}
-function closeModal(){$('#modal').classList.add('hidden')}
-function wire(){if(S.view==='instrument')$('#q')?.addEventListener('keydown',e=>{if(e.key==='Enter'){S.filter=e.target.value;render()}});if(S.view==='evidence')$('#eq')?.focus()}
-window.openAspect=openAspect;window.openAdd=openAdd;window.closeModal=closeModal;window.setScore=setScore;init();
+let DATA, EVIDENCE=JSON.parse(localStorage.getItem("skasEvidenceV4")||"[]");
+const $=s=>document.querySelector(s), esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+const escA=s=>esc(s).replace(/`/g,"&#096;");
+const icons={Dokumen:"📄",Gambar:"🖼️",Video:"🎬",Data:"📊","Lain-lain":"📎"};
+
+async function init(){
+ DATA=await fetch("data/instrument.json").then(r=>r.json());
+ $("#school").textContent=DATA.school;
+ buildNav(); renderHome(); fillTarget();
+}
+function allTargets(){
+ const a=[];
+ DATA.standards.forEach(s=>{
+  if(s.direct) a.push({id:s.code,name:s.name,path:s.code});
+  (s.aspects||[]).forEach(x=>{
+   (x.items||[]).forEach(i=>a.push({id:i[0],name:i[1],path:`${s.code} › ${x.code} ${x.name}`}));
+   (x.subaspects||[]).forEach(sa=>{
+    (sa.items||[]).forEach(i=>a.push({id:i[0],name:i[1],path:`${s.code} › ${x.code} ${x.name} › ${sa.code} ${sa.name}`}));
+   });
+  });
+ });
+ return a;
+}
+function evidenceFor(id){return EVIDENCE.filter(e=>e.targetId===id)}
+function buildNav(){
+ let n=$("#nav");
+ DATA.standards.forEach(s=>{
+  let b=document.createElement("button");b.className="nav-btn";b.innerHTML=`<span>${s.code} · ${esc(s.name)}</span><b>›</b>`;
+  b.onclick=()=>openStandard(s.code);n.appendChild(b);
+ });
+ $(".home").onclick=()=>show("home");
+}
+function show(v){
+ $("#homeView").classList.toggle("hidden",v!=="home");
+ $("#detailView").classList.toggle("hidden",v!=="detail");
+ $("#resultsView").classList.toggle("hidden",v!=="results");
+ document.querySelectorAll(".home,.nav-btn").forEach(x=>x.classList.remove("active"));
+ if(v==="home") $(".home").classList.add("active");
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+function renderHome(){
+ $("#count").textContent=EVIDENCE.length;
+ const targets=allTargets(),covered=new Set(EVIDENCE.map(e=>e.targetId)).size;
+ $("#stats").innerHTML=[
+  ["Jumlah eviden",EVIDENCE.length],
+  ["Pecahan sudah ada eviden",covered],
+  ["Pecahan belum ada eviden",Math.max(0,targets.length-covered)]
+ ].map(x=>`<div class="stat"><small>${x[0]}</small><strong>${x[1]}</strong></div>`).join("");
+ $("#progress").innerHTML=DATA.standards.map(s=>{
+  const ts=targets.filter(t=>t.path.startsWith(s.code+" "));
+  const have=new Set(EVIDENCE.filter(e=>ts.some(t=>t.id===e.targetId)).map(e=>e.targetId)).size;
+  const pct=ts.length?Math.round(have/ts.length*100):0;
+  return `<div class="progress"><div class="progress-head"><span>${s.code} · ${esc(s.name)}</span><b>${pct}%</b></div><div class="bar"><div class="fill" style="width:${pct}%"></div></div></div>`
+ }).join("");
+ const rec=[...EVIDENCE].sort((a,b)=>(b.date||"").localeCompare(a.date||"")).slice(0,8);
+ $("#recent").innerHTML=rec.length?rec.map(e=>`<div class="recent"><div class="ico">${icons[e.category]||"📎"}</div><div><strong>${esc(e.title)}</strong><small>${esc(e.targetLabel)} ${e.date?"• "+e.date:""}</small></div></div>`).join(""):`<div class="muted">Belum ada eviden. Gunakan butang “Tambah Eviden” untuk mula.</div>`;
+}
+function openStandard(code){
+ const s=DATA.standards.find(x=>x.code===code); if(!s)return;
+ let body="";
+ if(s.direct){
+  const cnt=evidenceFor(s.code).length;
+  body=`<div class="direct"><span class="tag">${s.code}</span><h2>${esc(s.name)}</h2><p class="muted">Eviden boleh direkodkan terus pada Standard 4.0. Pecahan dalaman tidak diberikan dalam senarai struktur yang dibekalkan.</p><div class="item"><div class="item-text">📁 Eviden Standard 4.0</div><div><span class="evidence-count">${cnt} eviden</span> <button class="add-mini" onclick="addFor('${s.code}','${escA(s.name)}')">+ Eviden</button></div></div><div class="evidence-list">${renderEvidence(s.code)}</div></div>`;
+ }else{
+  body=(s.aspects||[]).map(a=>{
+   let items=(a.items||[]).map(i=>itemHtml(i,s,a)).join("");
+   if(a.subaspects) items=a.subaspects.map(sa=>`<div class="aspect-card"><div class="aspect-head"><b>${sa.code} · ${esc(sa.name)}</b><small>${sa.items.length} pecahan</small></div>${sa.items.map(i=>itemHtml(i,s,sa)).join("")}</div>`).join("");
+   return `<div class="aspect-card"><div class="aspect-head"><b>${a.code} · ${esc(a.name)}</b><small>${a.subaspects?a.subaspects.length+" bahagian":(a.items||[]).length+" pecahan"}</small></div>${items}</div>`;
+  }).join("");
+ }
+ $("#detail").innerHTML=`<div class="title"><div><span>${s.code}</span><h2>${esc(s.name)}</h2></div></div>${body}`;
+ show("detail");
+}
+function itemHtml(i,s,parent){
+ const id=i[0],cnt=evidenceFor(id).length;
+ return `<div class="item"><div class="item-text"><span class="item-code">${id}</span>${esc(i[1])}</div><div><span class="evidence-count">${cnt} eviden</span> <button class="add-mini" onclick="addFor('${escA(id)}','${escA(i[1])}')">+ Eviden</button></div></div>`;
+}
+function renderEvidence(id){
+ const ev=evidenceFor(id);
+ return ev.length?ev.map(e=>`<div class="evidence-row"><strong>${icons[e.category]||"📎"} ${esc(e.title)}</strong><small>${esc(e.owner||"Tiada pemilik")} ${e.date?"• "+e.date:""}${e.note?" • "+esc(e.note):""}</small>${e.url?`<a href="${escA(e.url)}" target="_blank" rel="noopener">Buka dokumen ↗</a>`:""}</div>`).join(""):`<div class="muted">Belum ada eviden untuk pecahan ini.</div>`;
+}
+function fillTarget(){
+ const opts=allTargets();
+ $("#target").innerHTML=opts.map(t=>`<option value="${escA(t.id)}">${esc(t.id)} — ${esc(t.name)}</option>`).join("");
+}
+function addFor(id,label){openModal(id,label)}
+function openModal(id="",label=""){
+ $("#modal").classList.remove("hidden");
+ $("#form").reset();
+ if(id) $("#target").value=id;
+ $("#modal").dataset.targetLabel=label||$("#target").selectedOptions[0]?.text||"";
+}
+function closeModal(){$("#modal").classList.add("hidden")}
+$("#addBtn").onclick=()=>openModal();
+$("#close").onclick=closeModal;$("#cancel").onclick=closeModal;
+$("#form").onsubmit=e=>{
+ e.preventDefault();const f=e.target,id=f.target.value,op=$("#target").selectedOptions[0]?.text||id;
+ EVIDENCE.push({id:Date.now().toString(),targetId:id,targetLabel:op,title:f.title.value.trim(),category:f.category.value,owner:f.owner.value.trim(),date:f.date.value,url:f.url.value.trim(),note:f.note.value.trim()});
+ localStorage.setItem("skasEvidenceV4",JSON.stringify(EVIDENCE));closeModal();renderHome(); if(!$("#detailView").classList.contains("hidden")){const code=id.split(".").slice(0,2).join(".");openStandard(DATA.standards.some(s=>s.code===id)?id:(code==="1.1"?"1.0":code==="1.2"?"1.0":code==="1.3"?"1.0":code==="2.1"||code==="2.2"||code==="2.3"||code==="2.4"||code==="2.5"||code==="2.6"||code==="2.7"?"2.0":code.startsWith("3.")?"3.0":"5.0"));}else show("home");};
+$("#back").onclick=()=>show("home");
+$("#clear").onclick=()=>{$("#search").value="";doSearch("")};
+$("#search").oninput=e=>doSearch(e.target.value);
+function doSearch(q){
+ q=q.trim().toLowerCase(); if(!q){show("home");return}
+ show("results");const targets=allTargets();
+ const matches=targets.filter(t=>`${t.id} ${t.name} ${t.path}`.toLowerCase().includes(q));
+ const ev=EVIDENCE.filter(e=>`${e.title} ${e.targetLabel} ${e.owner} ${e.note}`.toLowerCase().includes(q));
+ let h="";
+ matches.forEach(t=>h+=`<div class="result"><span class="tag">${esc(t.id)}</span><h3>${esc(t.name)}</h3><p>${esc(t.path)} • ${evidenceFor(t.id).length} eviden</p><button onclick="addFor('${escA(t.id)}','${escA(t.name)}')">+ Tambah eviden</button></div>`);
+ ev.forEach(e=>h+=`<div class="result"><span class="tag">${esc(e.category)}</span><h3>${esc(e.title)}</h3><p>${esc(e.targetLabel)}${e.owner?" • "+esc(e.owner):""}</p>${e.url?`<a href="${escA(e.url)}" target="_blank" rel="noopener">Buka dokumen ↗</a>`:""}</div>`);
+ $("#results").innerHTML=h||`<div class="panel"><div class="muted">Tiada hasil untuk “${esc(q)}”.</div></div>`;
+}
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal()});
+init();
