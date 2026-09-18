@@ -5,6 +5,57 @@
   "edition": "Instrumen K@S 2026",
   "standards": [
     {
+      "code": "K",
+      "name": "KEKUATAN KAMI",
+      "aspects": [
+        {
+          "code": "A1",
+          "name": "Guru",
+          "items": []
+        },
+        {
+          "code": "A2",
+          "name": "Kualiti Pengajaran dan Pembelajaran",
+          "items": []
+        },
+        {
+          "code": "A3",
+          "name": "Staf Bukan Guru",
+          "items": []
+        },
+        {
+          "code": "A4",
+          "name": "Prasarana Akademik",
+          "items": []
+        },
+        {
+          "code": "A5",
+          "name": "Prasarana Sukan dan Kokurikulum",
+          "items": []
+        },
+        {
+          "code": "A6",
+          "name": "Prasarana Hal Ehwal Murid",
+          "items": []
+        },
+        {
+          "code": "A7",
+          "name": "Persekitaran Digital",
+          "items": []
+        },
+        {
+          "code": "A8",
+          "name": "Asrama",
+          "items": []
+        },
+        {
+          "code": "A9",
+          "name": "Sokongan Ibu Bapa/Penjaga,Komuniti dan Pihak Swasta",
+          "items": []
+        }
+      ]
+    },
+    {
       "code": "1.0",
       "name": "KEPEMIMPINAN",
       "aspects": [
