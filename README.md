@@ -1,45 +1,25 @@
-# SK@S DIGITAL V4 — EVIDEN SAHAJA
+# SK@S DIGITAL V6 — Sistem Evidens Digital
 
-Versi ini menggunakan struktur yang dibekalkan untuk Sistem Evidens Digital SK@S, dengan **Kekuatan Kami (A1–A9)** diletakkan paling awal sebelum Standard 1.0.
+Versi V6 meneruskan reka bentuk V5 dengan fokus kepada **pengisian eviden sahaja**.
 
-## Prinsip V4
-**Standard → Aspek → Pecahan → Eviden**
+## Struktur
+KEKUATAN KAMI → Aspek → Eviden
+1.0 Kepemimpinan → Aspek → Pecahan instrumen → Eviden
+2.0 Pengurusan Organisasi → Aspek → Pecahan instrumen → Eviden
+3.0 Pengurusan Kurikulum, Kokurikulum dan HEM → Aspek → Pecahan instrumen → Eviden
+4.0 Pembelajaran dan Pemudahcaraan (PdPc) → Eviden terus (tiada sub-item dibekalkan)
+5.0 Pencapaian Kami → Aspek → Pecahan instrumen → Eviden
 
-Tiada pengisian tindakan dan tiada skor.
+## V6
+- Tambah eviden dalam fail sebenar: PDF, Word, Excel, PowerPoint, gambar, video dan beberapa format data biasa.
+- Fail disimpan dalam IndexedDB pelayar, bukan dalam GitHub.
+- Satu eviden boleh dikaitkan dengan lebih daripada satu pecahan instrumen tanpa upload berulang.
+- Pautan Google Drive/OneDrive/URL masih boleh digunakan.
+- Buka fail eviden terus daripada sistem.
+- Padam eviden dan fail tempatan berkaitan.
+- Data eviden dipindahkan daripada localStorage V5/V4 secara automatik pada penggunaan pertama.
 
-## Fungsi
-- Dashboard jumlah eviden
-- Progress eviden mengikut Standard
-- Navigasi Standard 1.0 hingga 5.0
-- Pecahan instrumen seperti 1.1.1, 3.1.2.1, 5.4.2
-- Tambah eviden pada setiap pecahan
-- Kategori: Dokumen, Gambar, Video, Data, Lain-lain
-- Pemilik/Unit, tarikh, URL dan catatan
-- Carian pantas
-- Senarai eviden bagi setiap pecahan
-- Data V1/V4 disimpan dalam browser melalui localStorage
+## Nota penting
+V6 masih **local/offline browser storage**. Jika cache/site data browser dipadam atau sistem digunakan pada komputer lain, fail tempatan tidak ikut berpindah. Fasa seterusnya sesuai untuk storan pusat seperti Supabase/Google Drive dan login pengguna.
 
-## Nota Standard 4.0
-Senarai yang dibekalkan hanya menyatakan “4.0 Pembelajaran dan Pemudahcaraan (PdPc)” tanpa pecahan. V4 tidak mereka-reka pecahan yang tidak diberikan; eviden boleh direkodkan terus pada 4.0.
-
-## GitHub Pages
-Upload kandungan folder ini ke repository GitHub. Pastikan `index.html` berada di root. Kemudian:
-Settings → Pages → Deploy from branch → `main` → `/ (root)`.
-
-## Roadmap seterusnya
-- Upload fail sebenar (PDF/Word/Excel/gambar/video)
-- Supabase Storage
-- Login pengguna
-- Google Drive/OneDrive integration
-- Satu eviden boleh dikaitkan kepada beberapa pecahan
-- Preview PDF/gambar
-- Backup/export data
-
-
-## Susunan utama
-1. Kekuatan Kami (A1–A9)
-2. 1.0 Kepemimpinan
-3. 2.0 Pengurusan Organisasi
-4. 3.0 Pengurusan Kurikulum, Kokurikulum dan HEM
-5. 4.0 Pembelajaran dan Pemudahcaraan (PdPc)
-6. 5.0 Pencapaian Kami
+Tiada modul tindakan, skor, self-score atau skor penilai.
