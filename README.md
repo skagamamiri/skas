@@ -22,3 +22,6 @@ NOTA KESELAMATAN
 
 ### V7.13 — pembaikan auto-isi pautan Google Drive
 Selepas upload berjaya, Google Apps Script menghantar keputusan ke tetingkap utama menggunakan `window.top.postMessage()`. Ini penting kerana halaman Apps Script berjalan dalam sandbox iframe; pautan fail Google Drive kini diisi terus ke medan **Pautan Google Drive** dalam borang eviden. Folder automatik V7.12 dikekalkan.
+
+## V7.14 — Google Login + Admin Approval
+Rujuk `README-GOOGLE-LOGIN.md` dan jalankan `schema-approval.sql` sekali di Supabase.
