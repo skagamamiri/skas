@@ -1,30 +1,36 @@
-# SK@S DIGITAL V2
+# SK@S DIGITAL V4 — EVIDEN SAHAJA
 
-Webapp asas Sistem Evidens Digital SK@S berasaskan Instrumen K@S Edisi 2026.
+Versi ini menggunakan struktur yang dibekalkan untuk Sistem Evidens Digital SK@S.
 
-## Fokus V2
-- Standard/Aspek/Tindakan/Standard Kualiti
-- Nombor halaman sumber untuk semakan
-- Skor kendiri 0–4 dan skor penilai 0–4
-- Eviden boleh dipautkan kepada aspek/tindakan
-- Carian
-- Dashboard kesiapsiagaan
-- Mode Penilaian
-- Laporan asas
-- Data eviden dan skor disimpan dalam localStorage
+## Prinsip V4
+**Standard → Aspek → Pecahan → Eviden**
 
-## Nota ketepatan
-Dokumen sumber ialah PDF imbasan. Tajuk tindakan diekstrak melalui OCR dan sebahagian halaman sambungan mungkin memerlukan semakan manual. Nombor halaman sumber disimpan supaya kandungan boleh disahkan sebelum digunakan sebagai versi rasmi sekolah.
+Tiada pengisian tindakan dan tiada skor.
+
+## Fungsi
+- Dashboard jumlah eviden
+- Progress eviden mengikut Standard
+- Navigasi Standard 1.0 hingga 5.0
+- Pecahan instrumen seperti 1.1.1, 3.1.2.1, 5.4.2
+- Tambah eviden pada setiap pecahan
+- Kategori: Dokumen, Gambar, Video, Data, Lain-lain
+- Pemilik/Unit, tarikh, URL dan catatan
+- Carian pantas
+- Senarai eviden bagi setiap pecahan
+- Data V1/V4 disimpan dalam browser melalui localStorage
+
+## Nota Standard 4.0
+Senarai yang dibekalkan hanya menyatakan “4.0 Pembelajaran dan Pemudahcaraan (PdPc)” tanpa pecahan. V4 tidak mereka-reka pecahan yang tidak diberikan; eviden boleh direkodkan terus pada 4.0.
 
 ## GitHub Pages
-Upload folder ini ke repository, pastikan `index.html` di root, kemudian Settings → Pages → Deploy from branch → main/root.
+Upload kandungan folder ini ke repository GitHub. Pastikan `index.html` berada di root. Kemudian:
+Settings → Pages → Deploy from branch → `main` → `/ (root)`.
 
-## Roadmap V3
-- Lengkapkan tindakan/subitem dan rubrik 0–4 selepas semakan OCR
-- One evidence → many actions
-- Google Drive/Supabase
-- Login & role
-- Upload fail sebenar
-- PDF/Excel report
-- Audit log dan sejarah penilaian
-- Standard 5 sebagai indikator pencapaian
+## Roadmap seterusnya
+- Upload fail sebenar (PDF/Word/Excel/gambar/video)
+- Supabase Storage
+- Login pengguna
+- Google Drive/OneDrive integration
+- Satu eviden boleh dikaitkan kepada beberapa pecahan
+- Preview PDF/gambar
+- Backup/export data

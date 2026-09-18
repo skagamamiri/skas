@@ -1,6 +1,47 @@
-<!doctype html><html lang="ms"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SK@S DIGITAL V2</title><link rel="stylesheet" href="css/style.css"></head><body>
-<div class="app"><aside class="sidebar"><div class="brand"><div class="mark">K@S</div><div><b>SK@S DIGITAL</b><small>Evidens & Penilaian</small></div></div><button class="nav active" data-view="dashboard">📊 Dashboard</button><button class="nav" data-view="instrument">📚 Instrumen</button><button class="nav" data-view="evidence">📁 Semua Eviden</button><button class="nav" data-view="assessment">🧑‍💼 Mode Penilaian</button><button class="nav" data-view="report">📑 Laporan</button><div class="side-foot">Instrumen K@S Edisi 2026<br><span>V2 • Evidence Ready</span></div></aside>
-<main><header><div><span class="eyebrow">SISTEM EVIDENS DIGITAL</span><h1>SK AGAMA (MIS) MIRI</h1></div><div class="user">👤 Pentadbir</div></header>
-<div id="app"></div></main></div>
-<div class="modal hidden" id="modal"><div class="modal-card"><button class="x" onclick="closeModal()">×</button><div id="modalBody"></div></div></div>
-<script src="js/app.js"></script></body></html>
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SK@S DIGITAL</title><link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand"><div class="logo">K@S</div><div><b>SK@S DIGITAL</b><small>Sistem Evidens Digital</small></div></div>
+  <button class="home active" data-view="home">⌂ Dashboard</button>
+  <div class="nav-title">INSTRUMEN</div>
+  <div id="nav"></div>
+  <div class="side-foot">Instrumen K@S 2026</div>
+</aside>
+<main>
+<header class="top"><div><span>SEKOLAH</span><h1 id="school"></h1></div><div class="pill">👤 Pentadbir</div></header>
+<section class="hero"><div><em>SK@S DIGITAL</em><h2>Pusat Eviden Sekolah</h2><p>Susun dan capai eviden dengan cepat mengikut Standard, Aspek dan pecahan instrumen.</p></div><div class="hero-num"><small>Eviden direkodkan</small><strong id="count">0</strong></div></section>
+<div class="search"><span>⌕</span><input id="search" placeholder="Cari kod, aspek, pecahan atau nama eviden..."><button id="clear">ESC</button></div>
+<section id="homeView">
+  <div class="title"><div><span>RINGKASAN</span><h2>Dashboard Eviden</h2></div><button class="primary" id="addBtn">＋ Tambah Eviden</button></div>
+  <div class="stats" id="stats"></div>
+  <div class="panel"><div class="panel-head"><h3>Kesediaan Eviden Mengikut Standard</h3></div><div id="progress"></div></div>
+  <div class="panel"><div class="panel-head"><h3>Eviden Terbaru</h3></div><div id="recent"></div></div>
+</section>
+<section id="detailView" class="hidden">
+  <button class="back" id="back">← Dashboard</button>
+  <div id="detail"></div>
+</section>
+<section id="resultsView" class="hidden"><div class="title"><div><span>CARIAN</span><h2>Hasil Carian</h2></div></div><div id="results"></div></section>
+</main></div>
+
+<div class="modal hidden" id="modal"><div class="modal-card">
+<button class="x" id="close">×</button><span class="tag">EVIDEN</span><h2>Tambah Eviden</h2>
+<p class="muted">Pilih pecahan instrumen, kemudian masukkan pautan dokumen atau fail. V1 menggunakan pautan dan localStorage; storan awan akan ditambah kemudian.</p>
+<form id="form">
+<label>Pecahan instrumen<select name="target" id="target" required></select></label>
+<label>Nama eviden<input name="title" required placeholder="Contoh: Minit Mesyuarat Bil. 1/2026"></label>
+<label>Kategori<select name="category"><option>Dokumen</option><option>Gambar</option><option>Video</option><option>Data</option><option>Lain-lain</option></select></label>
+<label>Pemilik / Unit<input name="owner" placeholder="Contoh: Unit Kurikulum"></label>
+<label>Tarikh<input name="date" type="date"></label>
+<label>Pautan dokumen<input name="url" type="url" placeholder="Google Drive / OneDrive / URL dokumen"></label>
+<label>Catatan<textarea name="note" rows="3" placeholder="Catatan ringkas"></textarea></label>
+<div class="actions"><button type="button" class="secondary" id="cancel">Batal</button><button class="primary">Simpan Eviden</button></div>
+</form></div></div>
+<script src="js/app.js"></script>
+</body></html>
