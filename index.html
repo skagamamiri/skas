@@ -24,6 +24,7 @@
 <aside class="sidebar">
   <div class="brand"><div class="logo">K@S</div><div><b>SK@S DIGITAL</b><small>Sistem Evidens Digital</small></div></div>
   <button class="home active" data-view="home">⌂ Dashboard</button>
+  <button class="home hidden" id="usersNav">👥 Pengguna</button>
   <div class="nav-title">INSTRUMEN</div><div id="nav"></div>
   <div class="side-foot"><span id="modeText">Instrumen K@S 2026</span><button id="logoutBtn" class="logout">Log keluar</button></div>
 </aside>
@@ -38,7 +39,9 @@
 </section>
 <section id="detailView" class="hidden"><button class="back" id="back">← Dashboard</button><div id="detail"></div></section>
 <section id="resultsView" class="hidden"><div class="title"><div><span>CARIAN</span><h2>Hasil Carian</h2></div></div><div id="results"></div></section>
+<section id="usersView" class="hidden"><div class="title"><div><span>PENTADBIRAN</span><h2>Pengurusan Pengguna</h2><p class="muted">Urus nama dan peranan pengguna yang telah didaftarkan.</p></div><div class="title-actions"><button class="secondary" id="userHelpBtn">＋ Tambah Pengguna</button><button class="secondary" id="refreshUsersBtn">↻ Segar</button></div></div><div class="panel"><div id="usersTable"></div></div></section>
 </main></div>
+<div class="modal hidden" id="userModal"><div class="modal-card"><button class="x" id="userClose">×</button><span class="tag">PENGGUNA</span><h2>Tambah Pengguna</h2><p class="muted">Akaun login dicipta melalui Supabase Authentication. Untuk keselamatan, V7.9 tidak meletakkan Secret/Service Role Key dalam GitHub. Cipta akaun dahulu di Supabase Authentication → Users, kemudian kembali ke sini untuk menetapkan nama dan role.</p><div class="panel" style="margin-top:12px"><b style="font-size:12px">Langkah</b><ol style="font-size:11px;line-height:1.7"><li>Buka Supabase → Authentication → Users.</li><li>Klik <b>Add user</b> dan cipta akaun.</li><li>Kembali ke SK@S Digital dan tekan <b>Segar</b>.</li><li>Tetapkan role Guru / Nazir / Admin di bawah.</li></ol></div><div class="actions"><button type="button" class="secondary" id="userCancel">Tutup</button><a class="primary" style="text-decoration:none" target="_blank" rel="noopener" href="https://supabase.com/dashboard/project/qscjehhzzigerffaumxa/auth/users">Buka Supabase Users ↗</a></div></div></div>
 <div class="modal hidden" id="modal"><div class="modal-card"><button class="x" id="close">×</button><span class="tag" id="modalTag">EVIDEN</span><h2 id="modalTitle">Tambah Eviden</h2><p class="muted">Satu eviden boleh dikaitkan dengan beberapa pecahan instrumen. Fail sebenar disimpan di Google Drive; Supabase menyimpan rekod dan pautannya.</p>
 <form id="form"><label>Pecahan instrumen <span class="hint">(boleh pilih lebih daripada satu)</span><div id="targets" class="target-list"></div></label>
 <label>Nama eviden<input name="title" required placeholder="Contoh: Minit Mesyuarat Bil. 1/2026"></label><label>Kategori<select name="category"><option>Dokumen</option><option>Gambar</option><option>Video</option><option>Data</option><option>Lain-lain</option></select></label>
