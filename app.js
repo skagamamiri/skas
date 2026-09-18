@@ -61,7 +61,7 @@ function openDriveUploader(){
   $('#driveModal').classList.remove('hidden');
 }
 function closeDriveUploader(){ $('#driveModal').classList.add('hidden'); $('#driveFrame').src='about:blank'; }
-window.addEventListener('message',ev=>{const d=ev.data||{};if(d.type==='SKAS_DRIVE_UPLOAD_SUCCESS'){const r=d.result||{};$('#form').url.value=r.url||'';$('#driveUploadStatus').textContent=r.fileName?`✓ ${r.fileName} berjaya dimuat naik ke Google Drive.`:'✓ Upload berjaya.';closeDriveUploader();alert('Fail berjaya dimuat naik ke Google Drive. Pautan telah dimasukkan automatik.')}if(d.type==='SKAS_DRIVE_UPLOAD_ERROR'){alert('Upload Google Drive gagal: '+(d.message||'Ralat tidak diketahui.'));}});
+window.addEventListener('message',ev=>{const d=ev.data||{};if(d.type==='SKAS_DRIVE_UPLOAD_SUCCESS'){const r=d.result||{};const urlInput=document.querySelector('#form input[name="url"]');if(urlInput){urlInput.value=r.url||'';urlInput.dispatchEvent(new Event('input',{bubbles:true}));urlInput.dispatchEvent(new Event('change',{bubbles:true}));}$('#driveUploadStatus').textContent=r.fileName?`✓ ${r.fileName} berjaya dimuat naik ke Google Drive.`:'✓ Upload berjaya.';closeDriveUploader();alert('Fail berjaya dimuat naik ke Google Drive. Pautan telah dimasukkan automatik.')}if(d.type==='SKAS_DRIVE_UPLOAD_ERROR'){alert('Upload Google Drive gagal: '+(d.message||'Ralat tidak diketahui.'));}});
 
 function fillMulti(selected=[]){$('#targets').innerHTML=allTargets().map(t=>`<label class="check"><input type="checkbox" value="${escA(t.id)}" ${selected.includes(t.id)?'checked':''}> <span>${esc(t.id)} — ${esc(t.name)}</span></label>`).join('')}
 function addFor(id,label){openModal(id,label)}

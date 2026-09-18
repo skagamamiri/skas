@@ -1,4 +1,4 @@
-SK@S Digital V7.12
+SK@S Digital V7.13
 
 Fungsi baharu: upload fail terus dari web ke Google Drive melalui Google Apps Script Web App. Folder akan dicipta automatik mengikut Standard > Aspek > Pecahan instrumen. Jika satu eviden dikaitkan dengan beberapa pecahan, fail asal disimpan sekali dan shortcut diletakkan pada folder pecahan lain. Supabase hanya menyimpan metadata dan URL Drive.
 
@@ -18,3 +18,7 @@ NOTA KESELAMATAN
 - Jangan letakkan Secret/Service Role Key Supabase dalam frontend.
 - Untuk akses fail oleh Nazir/guru lain, kongsi folder root SK@S DIGITAL kepada akaun/kumpulan sekolah. Kod backend tidak menjadikan fail awam secara automatik.
 - Apps Script menggunakan DriveApp dan memerlukan kebenaran Drive.
+
+
+### V7.13 — pembaikan auto-isi pautan Google Drive
+Selepas upload berjaya, Google Apps Script menghantar keputusan ke tetingkap utama menggunakan `window.top.postMessage()`. Ini penting kerana halaman Apps Script berjalan dalam sandbox iframe; pautan fail Google Drive kini diisi terus ke medan **Pautan Google Drive** dalam borang eviden. Folder automatik V7.12 dikekalkan.
