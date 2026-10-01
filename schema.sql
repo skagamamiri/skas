@@ -80,24 +80,36 @@ create policy evidences_select on public.evidences
 for select to authenticated
 using (true);
 
--- Signed-in users can add evidence only as themselves.
+-- Guru and Admin can add evidence. Nazir is read-only.
 drop policy if exists evidences_insert on public.evidences;
 create policy evidences_insert on public.evidences
 for insert to authenticated
-with check (user_id = auth.uid());
+with check (
+  user_id = auth.uid()
+  and (select public.current_role()) <> 'nazir'
+);
 
--- Owner can edit; admin/nazir can edit any.
+-- Owner can edit own evidence; Admin can edit any evidence. Nazir cannot edit.
 drop policy if exists evidences_update on public.evidences;
 create policy evidences_update on public.evidences
 for update to authenticated
-using (user_id = auth.uid() or (select public.current_role()) in ('admin','nazir'))
-with check (user_id = auth.uid() or (select public.current_role()) in ('admin','nazir'));
+using (
+  (user_id = auth.uid() and (select public.current_role()) <> 'nazir')
+  or (select public.current_role()) = 'admin'
+)
+with check (
+  (user_id = auth.uid() and (select public.current_role()) <> 'nazir')
+  or (select public.current_role()) = 'admin'
+);
 
--- Owner, admin or nazir can delete.
+-- Owner and Admin can delete. Nazir cannot delete.
 drop policy if exists evidences_delete on public.evidences;
 create policy evidences_delete on public.evidences
 for delete to authenticated
-using (user_id = auth.uid() or (select public.current_role()) in ('admin','nazir'));
+using (
+  ((user_id = auth.uid()) and (select public.current_role()) <> 'nazir')
+  or (select public.current_role()) = 'admin'
+);
 
 -- Storage bucket. Create it as private.
 insert into storage.buckets (id, name, public)
