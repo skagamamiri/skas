@@ -6,22 +6,25 @@ window.SKAS_CONFIG = {
   GOOGLE_DRIVE_WEBAPP_URL: "https://script.google.com/macros/s/AKfycbxPmWmemGCM-L99EfIGO89VFJjLcBmfMgZES3ByAUBRBEue4Yqft8epMejbD0SCOKdj7Q/exec"
 };
 
-/* Tukar tajuk modul Pengurusan SK@S tanpa mengubah fungsi modul sedia ada. */
+/* Tukar tajuk modul tanpa mengganggu proses aplikasi. */
 (function(){
   function applyPengurusanTitle(){
     const view=document.getElementById('profileView');
-    if(!view) return;
+    if(!view) return false;
     const hero=view.querySelector('.profile-hero');
-    if(!hero) return;
+    if(!hero) return false;
 
     const eyebrow=hero.querySelector('div[style*="letter-spacing"]');
     if(eyebrow) eyebrow.remove();
 
     const heading=hero.querySelector('h2');
     if(heading) heading.textContent='Pengurusan SK@S';
+
+    return true;
   }
 
-  const observer=new MutationObserver(applyPengurusanTitle);
-  observer.observe(document.body,{childList:true,subtree:true});
-  applyPengurusanTitle();
+  const timer=setInterval(function(){
+    if(applyPengurusanTitle()) clearInterval(timer);
+  },250);
+  setTimeout(function(){clearInterval(timer);},15000);
 })();
