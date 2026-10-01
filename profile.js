@@ -1,4 +1,4 @@
-/* SK@S DIGITAL - Modul Profil / Maklumat Guru */
+/* SK@S DIGITAL - Modul Profil / Maklumat Sekolah */
 (function(){
   'use strict';
   let rows=[];
@@ -9,8 +9,8 @@
   const escUrl = s => escP(s).replace(/`/g,'&#096;');
   const $p = s => document.querySelector(s);
 
-  const categories=['Peribadi','Perkhidmatan','Akademik','Profesional','Kokurikulum','Latihan / Kursus','Lain-lain'];
-  const categoryIcons={Peribadi:'👤','Perkhidmatan':'💼',Akademik:'🎓',Profesional:'🏅',Kokurikulum:'🏃','Latihan / Kursus':'📚','Lain-lain':'📌'};
+  const categories=['Profil & Identiti','Pengurusan','Kurikulum','Kokurikulum','Hal Ehwal Murid','Sarana & Prasarana','Lain-lain'];
+  const categoryIcons={'Profil & Identiti':'🏫','Pengurusan':'📋','Kurikulum':'📚','Kokurikulum':'🏆','Hal Ehwal Murid':'👨‍👩‍👧‍👦','Sarana & Prasarana':'🏢','Lain-lain':'📌'};
 
   function injectStyles(){
     if($p('#profileStyles')) return;
@@ -34,17 +34,17 @@
     if(!main) return;
     const sec=document.createElement('section'); sec.id='profileView'; sec.className='hidden';
     sec.innerHTML=`
-      <div class="profile-hero"><div class="profile-user"><div class="profile-avatar">👤</div><div><div style="font-size:11px;letter-spacing:.08em;font-weight:700;color:#bfe0ff">PROFIL GURU</div><h2>Maklumat Guru</h2><p>Simpan dan urus maklumat peribadi, perkhidmatan, akademik dan profesional anda.</p><div id="profileEmail" class="profile-email"></div></div></div><button class="primary" id="profileAddBtn">＋ Tambah Maklumat</button></div>
+      <div class="profile-hero"><div class="profile-user"><div class="profile-avatar">🏫</div><div><div style="font-size:11px;letter-spacing:.08em;font-weight:700;color:#bfe0ff">PROFIL SEKOLAH</div><h2>Maklumat Sekolah</h2><p>Simpan dan urus maklumat rasmi, pengurusan, kurikulum, kokurikulum dan maklumat sekolah.</p><div id="profileEmail" class="profile-email"></div></div></div><button class="primary" id="profileAddBtn">＋ Tambah Maklumat</button></div>
       <div class="profile-stats" id="profileStats"></div>
-      <div class="panel"><div class="panel-head"><div><h3>Senarai Maklumat</h3><div class="profile-admin-note">Maklumat anda disimpan di Supabase. Jika ada fail, fail sebenar kekal di Google Drive.</div></div><button class="secondary" id="profileRefreshBtn">↻ Segar</button></div><div id="profileList" class="profile-list"></div></div>`;
+      <div class="panel"><div class="panel-head"><div><h3>Senarai Maklumat Sekolah</h3><div class="profile-admin-note">Maklumat sekolah disimpan di Supabase. Jika ada fail, fail sebenar kekal di Google Drive.</div></div><button class="secondary" id="profileRefreshBtn">↻ Segar</button></div><div id="profileList" class="profile-list"></div></div>`;
     const users=document.querySelector('#usersView'); main.insertBefore(sec,users||null);
 
     const modal=document.createElement('div'); modal.className='modal hidden profile-modal'; modal.id='profileModal';
-    modal.innerHTML=`<div class="modal-card"><button class="x" id="profileClose">×</button><span class="tag">PROFIL GURU</span><h2 id="profileModalTitle">Tambah Maklumat</h2><p class="muted">Masukkan satu maklumat profil. Fail pilihan boleh dimuat naik ke Google Drive sekolah.</p><form id="profileForm"><div class="profile-form-grid"><label>Nama maklumat<input name="title" required placeholder="Contoh: Ijazah Sarjana Muda Pendidikan"></label><label>Kategori<select name="category">${categories.map(c=>`<option>${escP(c)}</option>`).join('')}</select></label><label>Pemilik / Unit<input name="owner" placeholder="Contoh: Mohd Sabri"></label><label>Tarikh<input name="date" type="date"></label><label class="full">Pautan Google Drive<input name="url" type="url" placeholder="Akan diisi automatik selepas upload ke Google Drive"></label><label class="full">Fail maklumat<div class="profile-drive"><button type="button" class="secondary" id="profileUploadBtn">📁 Upload ke Google Drive</button><span id="profileUploadStatus" class="profile-drive-status">Belum ada fail dipilih.</span></div></label><label class="full">Catatan<textarea name="note" rows="4" placeholder="Catatan ringkas"></textarea></label></div><div class="actions"><button type="button" class="secondary" id="profileCancel">Batal</button><button class="primary" id="profileSave">Simpan Maklumat</button></div></form></div>`;
+    modal.innerHTML=`<div class="modal-card"><button class="x" id="profileClose">×</button><span class="tag">MAKLUMAT SEKOLAH</span><h2 id="profileModalTitle">Tambah Maklumat Sekolah</h2><p class="muted">Masukkan satu maklumat sekolah. Fail pilihan boleh dimuat naik ke Google Drive sekolah.</p><form id="profileForm"><div class="profile-form-grid"><label>Nama maklumat<input name="title" required placeholder="Contoh: Profil Sekolah SK Agama (MIS) Miri"></label><label>Kategori<select name="category">${categories.map(c=>`<option>${escP(c)}</option>`).join('')}</select></label><label>Pemilik / Unit<input name="owner" placeholder="Contoh: Pengurusan Sekolah"></label><label>Tarikh<input name="date" type="date"></label><label class="full">Pautan Google Drive<input name="url" type="url" placeholder="Akan diisi automatik selepas upload ke Google Drive"></label><label class="full">Fail maklumat<div class="profile-drive"><button type="button" class="secondary" id="profileUploadBtn">📁 Upload ke Google Drive</button><span id="profileUploadStatus" class="profile-drive-status">Belum ada fail dipilih.</span></div></label><label class="full">Catatan<textarea name="note" rows="4" placeholder="Catatan atau penerangan maklumat sekolah"></textarea></label></div><div class="actions"><button type="button" class="secondary" id="profileCancel">Batal</button><button class="primary" id="profileSave">Simpan Maklumat</button></div></form></div>`;
     document.body.appendChild(modal);
 
     const up=document.createElement('div'); up.className='modal hidden profile-upload-modal'; up.id='profileUploadModal';
-    up.innerHTML=`<div class="modal-card"><button class="x" id="profileUploadClose">×</button><span class="tag">GOOGLE DRIVE</span><h2>Upload Fail Maklumat</h2><p class="muted">Fail akan disimpan dalam folder <b>SK@S DIGITAL › PROFIL GURU</b> dan subfolder kategori akan dicipta secara automatik.</p><iframe class="profile-upload-frame" id="profileUploadFrame" title="Upload maklumat ke Google Drive"></iframe></div>`;
+    up.innerHTML=`<div class="modal-card"><button class="x" id="profileUploadClose">×</button><span class="tag">GOOGLE DRIVE</span><h2>Upload Fail Maklumat Sekolah</h2><p class="muted">Fail akan disimpan dalam folder <b>SK@S DIGITAL › MAKLUMAT SEKOLAH</b> dan subfolder kategori akan dicipta secara automatik.</p><iframe class="profile-upload-frame" id="profileUploadFrame" title="Upload maklumat sekolah ke Google Drive"></iframe></div>`;
     document.body.appendChild(up);
 
     $p('#profileAddBtn').onclick=()=>openProfileModal();
@@ -72,7 +72,7 @@
     $p('#profileView')?.classList.remove('hidden');
     document.querySelectorAll('.home,.nav-btn').forEach(x=>x.classList.remove('active'));
     $p('#profileNav')?.classList.add('active');
-    const name=currentProfile?.full_name||currentUser?.email||'Guru';
+    const name=currentProfile?.full_name||currentUser?.email||'Pentadbir / Guru';
     $p('#profileEmail').textContent=`${name} • ${currentProfile?.role||'guru'}`;
     window.scrollTo({top:0,behavior:'smooth'});
     loadProfile();
@@ -86,7 +86,7 @@
       rows=data||[]; renderProfile();
     }catch(e){
       rows=[]; renderProfile();
-      const list=$p('#profileList'); if(list) list.innerHTML=`<div class="profile-empty"><b>Belum dapat memuat Maklumat.</b><br><small>${escP(e.message)}</small><br><br><span class="muted">Pastikan schema-profile.sql sudah dijalankan di Supabase.</span></div>`;
+      const list=$p('#profileList'); if(list) list.innerHTML=`<div class="profile-empty"><b>Belum dapat memuat Maklumat Sekolah.</b><br><small>${escP(e.message)}</small><br><br><span class="muted">Pastikan schema-profile.sql sudah dijalankan di Supabase.</span></div>`;
     }
   }
 
@@ -94,21 +94,21 @@
     const total=rows.length, withFile=rows.filter(x=>x.url).length, cats=new Set(rows.map(x=>x.category)).size;
     const st=$p('#profileStats'); if(st) st.innerHTML=`<div class="profile-stat"><small>Jumlah maklumat</small><strong>${total}</strong></div><div class="profile-stat"><small>Dengan pautan / fail</small><strong>${withFile}</strong></div><div class="profile-stat"><small>Kategori digunakan</small><strong>${cats}</strong></div>`;
     const list=$p('#profileList'); if(!list)return;
-    if(!rows.length){list.innerHTML=`<div class="profile-empty"><div style="font-size:30px;margin-bottom:8px">📋</div><b>Belum ada maklumat profil.</b><br><small>Klik “＋ Tambah Maklumat” untuk mula mengisi profil anda.</small></div>`;return;}
-    list.innerHTML=rows.map(r=>`<div class="profile-row"><div class="profile-icon">${categoryIcons[r.category]||'📌'}</div><div><strong>${escP(r.title)}</strong><span class="profile-badge">${escP(r.category||'Lain-lain')}</span><small>${escP(r.owner||'Tiada pemilik')}${r.information_date?' • '+escP(r.information_date):''}${r.note?' • '+escP(r.note):''}</small>${r.url?`<a class="profile-url" href="${escUrl(r.url)}" target="_blank" rel="noopener">🔗 ${escP(r.file_name||'Buka pautan Google Drive')} ↗</a>`:''}</div><div class="profile-actions"><button class="link-btn action-btn" onclick="SKASProfile.edit('${escP(r.id)}')">✏️ Edit</button><button class="danger-link action-btn" onclick="SKASProfile.remove('${escP(r.id)}')">🗑️ Padam</button></div></div>`).join('');
+    if(!rows.length){list.innerHTML=`<div class="profile-empty"><div style="font-size:30px;margin-bottom:8px">🏫</div><b>Belum ada maklumat sekolah.</b><br><small>Klik “＋ Tambah Maklumat” untuk mula mengisi maklumat sekolah.</small></div>`;return;}
+    list.innerHTML=rows.map(r=>`<div class="profile-row"><div class="profile-icon">${categoryIcons[r.category]||'📌'}</div><div><strong>${escP(r.title)}</strong><span class="profile-badge">${escP(r.category||'Lain-lain')}</span><small>${escP(r.owner||'Tiada pemilik / unit')}${r.information_date?' • '+escP(r.information_date):''}${r.note?' • '+escP(r.note):''}</small>${r.url?`<a class="profile-url" href="${escUrl(r.url)}" target="_blank" rel="noopener">🔗 ${escP(r.file_name||'Buka pautan Google Drive')} ↗</a>`:''}</div><div class="profile-actions"><button class="link-btn action-btn" onclick="SKASProfile.edit('${escP(r.id)}')">✏️ Edit</button><button class="danger-link action-btn" onclick="SKASProfile.remove('${escP(r.id)}')">🗑️ Padam</button></div></div>`).join('');
   }
 
   function openProfileModal(id=null){
     editId=id; uploadResult=null;
     const form=$p('#profileForm'); form.reset();
-    $p('#profileModalTitle').textContent=id?'Edit Maklumat':'Tambah Maklumat';
+    $p('#profileModalTitle').textContent=id?'Edit Maklumat Sekolah':'Tambah Maklumat Sekolah';
     if(id){
       const r=rows.find(x=>x.id===id); if(!r)return;
       form.title.value=r.title||'';form.category.value=r.category||'Lain-lain';form.owner.value=r.owner||'';form.date.value=r.information_date||'';form.url.value=r.url||'';form.note.value=r.note||'';
       $p('#profileUploadStatus').textContent=r.file_name?`Fail: ${r.file_name}`:(r.url?'Pautan sedia ada.':'Belum ada fail dipilih.');
     }else{
-      form.category.value='Peribadi';
-      form.owner.value=currentProfile?.full_name||'';
+      form.category.value='Profil & Identiti';
+      form.owner.value='Pengurusan Sekolah';
       $p('#profileUploadStatus').textContent='Belum ada fail dipilih.';
     }
     $p('#profileModal').classList.remove('hidden');
@@ -118,7 +118,7 @@
 
   function openProfileUpload(){
     const category=$p('#profileForm').category.value||'Lain-lain';
-    const target={id:'PROFILE_'+category,name:category,pathLabel:`PROFIL GURU › ${category}`,drivePath:['PROFIL GURU',category]};
+    const target={id:'SCHOOL_'+category,name:category,pathLabel:`MAKLUMAT SEKOLAH › ${category}`,drivePath:['MAKLUMAT SEKOLAH',category]};
     const base=String(window.SKAS_CONFIG?.GOOGLE_DRIVE_WEBAPP_URL||'').trim();
     if(!base){alert('URL Google Drive Web App belum dikonfigurasi.');return;}
     const url=base+(base.includes('?')?'&':'?')+'targets='+encodeURIComponent(JSON.stringify([target]));
@@ -144,12 +144,12 @@
       if(editId){const {error}=await sb.from('profile_information').update({...payload,updated_at:new Date().toISOString()}).eq('id',editId);if(error)throw error;}
       else{const {error}=await sb.from('profile_information').insert({user_id:currentUser.id,...payload});if(error)throw error;}
       closeProfileModal(); await loadProfile();
-    }catch(e){alert('Gagal menyimpan maklumat: '+e.message)}finally{btn.disabled=false;btn.textContent='Simpan Maklumat';}
+    }catch(e){alert('Gagal menyimpan maklumat sekolah: '+e.message)}finally{btn.disabled=false;btn.textContent='Simpan Maklumat';}
   }
 
   async function removeProfile(id){
     const r=rows.find(x=>x.id===id); if(!r)return;
-    if(!confirm(`Padam maklumat “${r.title}”?`))return;
+    if(!confirm(`Padam maklumat sekolah “${r.title}”?`))return;
     try{const {error}=await sb.from('profile_information').delete().eq('id',id);if(error)throw error;await loadProfile();}catch(e){alert('Gagal memadam: '+e.message)}
   }
 
