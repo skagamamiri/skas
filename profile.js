@@ -5,7 +5,7 @@
   let editId=null;
   let uploadResult=null;
 
-  const escP = s => String(s ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+  const escP = s => String(s ?? '').replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#039;'}[c]));
   const escUrl = s => escP(s).replace(/`/g,'&#096;');
   const $p = s => document.querySelector(s);
 
@@ -27,7 +27,7 @@
     injectStyles();
     const dash=document.querySelector('.sidebar .home[data-view="home"]') || document.querySelector('.sidebar .home');
     if(dash){
-      const b=document.createElement('button'); b.className='home'; b.id='profileNav'; b.innerHTML='👤 Profil';
+      const b=document.createElement('button'); b.className='home'; b.id='profileNav'; b.innerHTML='👤 Pengurusan SK@S';
       dash.insertAdjacentElement('afterend',b); b.addEventListener('click',openProfile);
     }
     const main=document.querySelector('main');
