@@ -22,6 +22,9 @@
     document.head.appendChild(st);
   }
 
+  function isNazir(){ return currentProfile?.role==='nazir'; }
+  function canManageRow(r){ return currentProfile?.role==='admin' || r.user_id===currentUser?.id; }
+
   function buildUI(){
     if($p('#profileNav')) return;
     injectStyles();
@@ -74,6 +77,7 @@
     $p('#profileNav')?.classList.add('active');
     const name=currentProfile?.full_name||currentUser?.email||'Pentadbir / Guru';
     $p('#profileEmail').textContent=`${name} • ${currentProfile?.role||'guru'}`;
+    $p('#profileAddBtn')?.classList.toggle('hidden',isNazir());
     window.scrollTo({top:0,behavior:'smooth'});
     loadProfile();
   }
@@ -81,7 +85,7 @@
   async function loadProfile(){
     if(!sb || !currentUser) return;
     try{
-      const {data,error}=await sb.from('profile_information').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});
+      const {data,error}=await sb.from('profile_information').select('*').order('created_at',{ascending:false});
       if(error) throw error;
       rows=data||[]; renderProfile();
     }catch(e){
@@ -95,15 +99,19 @@
     const st=$p('#profileStats'); if(st) st.innerHTML=`<div class="profile-stat"><small>Jumlah maklumat</small><strong>${total}</strong></div><div class="profile-stat"><small>Dengan pautan / fail</small><strong>${withFile}</strong></div><div class="profile-stat"><small>Kategori digunakan</small><strong>${cats}</strong></div>`;
     const list=$p('#profileList'); if(!list)return;
     if(!rows.length){list.innerHTML=`<div class="profile-empty"><div style="font-size:30px;margin-bottom:8px">🏫</div><b>Belum ada maklumat sekolah.</b><br><small>Klik “＋ Tambah Maklumat” untuk mula mengisi maklumat sekolah.</small></div>`;return;}
-    list.innerHTML=rows.map(r=>`<div class="profile-row"><div class="profile-icon">${categoryIcons[r.category]||'📌'}</div><div><strong>${escP(r.title)}</strong><span class="profile-badge">${escP(r.category||'Lain-lain')}</span><small>${escP(r.owner||'Tiada pemilik / unit')}${r.information_date?' • '+escP(r.information_date):''}${r.note?' • '+escP(r.note):''}</small>${r.url?`<a class="profile-url" href="${escUrl(r.url)}" target="_blank" rel="noopener">🔗 ${escP(r.file_name||'Buka pautan Google Drive')} ↗</a>`:''}</div><div class="profile-actions"><button class="link-btn action-btn" onclick="SKASProfile.edit('${escP(r.id)}')">✏️ Edit</button><button class="danger-link action-btn" onclick="SKASProfile.remove('${escP(r.id)}')">🗑️ Padam</button></div></div>`).join('');
+    list.innerHTML=rows.map(r=>{
+      const actions=canManageRow(r)?`<div class="profile-actions"><button class="link-btn action-btn" onclick="SKASProfile.edit('${escP(r.id)}')">✏️ Edit</button><button class="danger-link action-btn" onclick="SKASProfile.remove('${escP(r.id)}')">🗑️ Padam</button></div>`:'';
+      return `<div class="profile-row"><div class="profile-icon">${categoryIcons[r.category]||'📌'}</div><div><strong>${escP(r.title)}</strong><span class="profile-badge">${escP(r.category||'Lain-lain')}</span><small>${escP(r.owner||'Tiada pemilik / unit')}${r.information_date?' • '+escP(r.information_date):''}${r.note?' • '+escP(r.note):''}</small>${r.url?`<a class="profile-url" href="${escUrl(r.url)}" target="_blank" rel="noopener">🔗 ${escP(r.file_name||'Buka pautan Google Drive')} ↗</a>`:''}</div>${actions}</div>`;
+    }).join('');
   }
 
   function openProfileModal(id=null){
+    if(isNazir()) return;
     editId=id; uploadResult=null;
     const form=$p('#profileForm'); form.reset();
     $p('#profileModalTitle').textContent=id?'Edit Maklumat Sekolah':'Tambah Maklumat Sekolah';
     if(id){
-      const r=rows.find(x=>x.id===id); if(!r)return;
+      const r=rows.find(x=>x.id===id); if(!r || !canManageRow(r))return;
       form.title.value=r.title||'';form.category.value=r.category||'Lain-lain';form.owner.value=r.owner||'';form.date.value=r.information_date||'';form.url.value=r.url||'';form.note.value=r.note||'';
       $p('#profileUploadStatus').textContent=r.file_name?`Fail: ${r.file_name}`:(r.url?'Pautan sedia ada.':'Belum ada fail dipilih.');
     }else{
@@ -117,6 +125,7 @@
   function closeProfileModal(){editId=null;uploadResult=null;$p('#profileModal')?.classList.add('hidden');}
 
   function openProfileUpload(){
+    if(isNazir()) return;
     const category=$p('#profileForm').category.value||'Lain-lain';
     const target={id:'SCHOOL_'+category,name:category,pathLabel:`MAKLUMAT SEKOLAH › ${category}`,drivePath:['MAKLUMAT SEKOLAH',category]};
     const base=String(window.SKAS_CONFIG?.GOOGLE_DRIVE_WEBAPP_URL||'').trim();
@@ -137,18 +146,22 @@
 
   async function saveProfile(ev){
     ev.preventDefault();
+    if(isNazir()) return;
     if(!sb||!currentUser){alert('Sesi pengguna belum tersedia.');return;}
     const form=ev.currentTarget, btn=$p('#profileSave'); btn.disabled=true;btn.textContent='Menyimpan...';
     const payload={title:form.title.value.trim(),category:form.category.value,owner:form.owner.value.trim(),information_date:form.date.value||null,url:form.url.value.trim()||null,note:form.note.value.trim()||null,file_name:uploadResult?.fileName||null};
     try{
-      if(editId){const {error}=await sb.from('profile_information').update({...payload,updated_at:new Date().toISOString()}).eq('id',editId);if(error)throw error;}
-      else{const {error}=await sb.from('profile_information').insert({user_id:currentUser.id,...payload});if(error)throw error;}
+      if(editId){
+        const r=rows.find(x=>x.id===editId); if(!r || !canManageRow(r)) throw new Error('Anda tidak mempunyai kebenaran untuk mengedit maklumat ini.');
+        const {error}=await sb.from('profile_information').update({...payload,updated_at:new Date().toISOString()}).eq('id',editId);if(error)throw error;
+      }else{const {error}=await sb.from('profile_information').insert({user_id:currentUser.id,...payload});if(error)throw error;}
       closeProfileModal(); await loadProfile();
     }catch(e){alert('Gagal menyimpan maklumat sekolah: '+e.message)}finally{btn.disabled=false;btn.textContent='Simpan Maklumat';}
   }
 
   async function removeProfile(id){
-    const r=rows.find(x=>x.id===id); if(!r)return;
+    if(isNazir()) return;
+    const r=rows.find(x=>x.id===id); if(!r || !canManageRow(r)) return;
     if(!confirm(`Padam maklumat sekolah “${r.title}”?`))return;
     try{const {error}=await sb.from('profile_information').delete().eq('id',id);if(error)throw error;await loadProfile();}catch(e){alert('Gagal memadam: '+e.message)}
   }
@@ -159,6 +172,7 @@
     buildUI();
     if($p('#appView')?.classList.contains('hidden') || !currentUser){setTimeout(wait,700);return;}
     const nav=$p('#profileNav'); if(nav && currentProfile) nav.classList.remove('hidden');
+    $p('#profileAddBtn')?.classList.toggle('hidden',isNazir());
   }
   wait();
 })();
